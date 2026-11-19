@@ -113,9 +113,9 @@ const ENG={
  eleven:{voices:[["Celil · derin belgesel anlatıcı","Zpbxhg6LG47cY8y5BJrf"],["Ömür · sıcak, derin baritonu","X6EHbOBe9sjpG7kyfrOA"],["Ahmet · güçlü ve derin","ZsYcqahfiS2dy4J6XYC5"],["Muhammer · profesyonel","GLHtjkeLJ9Rxcv9JhLmh"],["Yusuf · hikâye anlatıcı","tOqnHSMt5y3uRBgH7e8J"],["Atakan · dinamik","gsJ9nrlXYbPztJxC4fwc"]],models:["eleven_multilingual_v2","eleven_v3","eleven_turbo_v2_5"]},
  gemini:{voices:["Charon","Kore","Fenrir","Orus","Puck","Aoede","Algenib","Alnilam"].map(x=>[x,x]),models:["gemini-2.5-flash-preview-tts","gemini-2.5-pro-preview-tts"]}};
 const PRE={aksiyon:{st:.25,sty:.65,sp:1.08,g:"Gergin, enerjik ve etkileyici bir belgesel anlatıcısı gibi, vurgulu ve net oku:"},dram:{st:.4,sty:.4,sp:1.0,g:"Derin, ağırbaşlı, dramatik bir belgesel anlatıcısı gibi oku:"},sakin:{st:.65,sty:.1,sp:1.0,g:"Sakin ve net bir belgesel anlatıcısı gibi oku:"}};
-function fillEng(){const e=ENG[$('eng').value];$('voice').innerHTML=e.voices.map(v=>'<option value="'+v[1]+'">'+v[0]+'</option>').join('');$('model').innerHTML=e.models.map(m=>'<option>'+m+'</option>').join('');
-  try{const k=localStorage.getItem('keys_'+$('eng').value);$('keys').value=k||''}catch(x){}}
+function fillEng(){const e=ENG[$('eng').value];$('voice').innerHTML=e.voices.map(v=>'<option value="'+v[1]+'">'+v[0]+'</option>').join('');$('model').innerHTML=e.models.map(m=>'<option>'+m+'</option>').join('')}
 $('eng').onchange=fillEng;fillEng();
+try{$('keys').value=[...new Set(['keys_all','keys_eleven','keys_gemini'].flatMap(k=>(localStorage.getItem(k)||'').split(/[\n,;\s]+/)).filter(Boolean))].join('\n')}catch(e){}
 ['vm','vs','vn'].forEach(i=>$(i).oninput=()=>$(i+'v').textContent=$(i).value);
 const V=$('v');
 $('vf').onchange=e=>{const f=e.target.files[0];if(!f)return;V.src=URL.createObjectURL(f);V.onloadedmetadata=()=>log('Video yüklendi: '+V.duration.toFixed(1)+' sn','ok')};
@@ -126,17 +126,22 @@ function scenes(){const a=[];$('lines').value.split('\n').map(x=>x.trim()).filte
 let bufs=[],cacheKey=[],theme=[];
 const AC=()=>new (window.AudioContext||window.webkitAudioContext)();
 /* ---------- TTS ---------- */
-function keyList(){return $('keys').value.split(/[\n,;\s]+/).map(x=>x.trim()).filter(Boolean)}
+function allKeys(){return [...new Set($('keys').value.split(/[\n,;\s]+/).map(x=>x.trim()).filter(Boolean))]}
+function kType(k){return /^AIza/.test(k)?'gemini':(/^sk_/.test(k)||/^[a-f0-9]{32}$/i.test(k))?'eleven':null}
+function keyList(eng){eng=eng||$('eng').value;return allKeys().filter(k=>{const t=kType(k);return !t||t==eng})}
+async function gemModels(key){try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(key));if(!r.ok)return[];const j=await r.json();return (j.models||[]).filter(m=>/tts/i.test(m.name)&&(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''))}catch(e){return[]}}
 let kIdx=0;
 const decode=(ctx,ab)=>new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab,res,rej);if(p&&p.catch)p.catch(rej)});
 function pcmToBuf(ctx,b64,rate){const bin=atob(b64),n=bin.length>>1,f=new Float32Array(n);for(let i=0;i<n;i++){let v=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);if(v>=32768)v-=65536;f[i]=v/32768}const b=ctx.createBuffer(1,n,rate);b.getChannelData(0).set(f);return b}
 async function tts(ctx,txt){
   if(MOCK){const sec=txt.length/14,r=24000,b=ctx.createBuffer(1,Math.round(sec*r),r),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=.2*Math.sin(2*Math.PI*(180+40*Math.sin(i/9000))*i/r)*(.6+.4*Math.sin(i/3000));return b}
-  const keys=keyList();if(!keys.length)throw new Error('API anahtarı yok (2. kutuya yapıştır)');
-  const eng=$('eng').value,P=PRE[$('preset').value],model=$('model').value.trim();
+  let keys=keyList();if(!keys.length){const ak=allKeys();if(!ak.length)throw new Error('API anahtarı yok (2. kutuya yapıştır)');const nt=kType(ak[0])||'eleven';$('eng').value=nt;fillEng();keys=keyList();log('Anahtar türü algılandı: '+(nt=='gemini'?'Gemini':'ElevenLabs')+' motoruna geçildi','wn')}
+  const bad=new Set();
+  const eng=$('eng').value,P=PRE[$('preset').value];let model=$('model').value.trim();
   let lastErr='';
   for(let n=0;n<keys.length*3+2;n++){
-    const key=keys[kIdx%keys.length];
+    let key;for(let q=0;q<keys.length;q++){const c=keys[(kIdx+q)%keys.length];if(!bad.has(c)){key=c;kIdx+=q;break}}
+    if(!key)throw new Error(lastErr||'Hiçbir anahtar çalışmadı');
     let r,j,url,body,headers;
     if(eng=='eleven'){
       const vid=($('cvoice').value.trim()||$('voice').value);
@@ -156,7 +161,10 @@ async function tts(ctx,txt){
       j=await r.json();const p=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts.find(x=>x.inlineData);
       if(!p)throw new Error('Yanıtta ses yok (içerik filtresi olabilir)');const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');return pcmToBuf(ctx,p.inlineData.data,m?+m[1]:24000)}
     let msg='HTTP '+r.status;try{const t=await r.text();try{const jj=JSON.parse(t);msg=(jj.detail&&(jj.detail.message||jj.detail.status))||(jj.error&&jj.error.message)||t.slice(0,200)}catch(e){msg=t.slice(0,200)}}catch(e){}
+    if(eng=='gemini'&&r.status==404&&!tts.disc){tts.disc=1;const ms=await gemModels(key);if(ms.length){$('model').innerHTML=ms.map(m=>'<option>'+m+'</option>').join('');model=ms[0];log('Model güncellendi: '+model,'wn');continue}}
+    if(eng=='eleven'&&(r.status==404||r.status==402||/voice/i.test(msg))&&!tts.vdisc){tts.vdisc=1;try{const vr=await fetch('https://api.elevenlabs.io/v1/voices?page_size=100',{headers:{'xi-api-key':key}});if(vr.ok){const vj=await vr.json(),vs=(vj.voices||[]);if(vs.length){vs.sort((x,y)=>(/tr/i.test(JSON.stringify(y.labels||{}))|0)-(/tr/i.test(JSON.stringify(x.labels||{}))|0));$('voice').innerHTML=vs.map(v=>'<option value="'+v.voice_id+'">'+v.name+' (hesabın)</option>').join('');$('cvoice').value='';log('Seçili ses hesabında yok/ücretli; hesabındaki seslerden "'+vs[0].name+'" kullanılıyor. Listeden değiştirebilirsin.','wn');continue}}}catch(e){}}
     msg=trErr(r.status,msg);lastErr=msg;
+    if(r.status==401||r.status==403||r.status==402)bad.add(key);
     if(r.status==401||r.status==402||r.status==403||r.status==429||/quota|limit|credit/i.test(msg)){
       if(keys.length>1){kIdx++;log('  anahtar değiştirildi ('+r.status+')','wn');await sleep(800);continue}
       if(r.status==429){log('  yoğunluk, bekleniyor…','wn');await sleep(4000);continue}
@@ -164,7 +172,7 @@ async function tts(ctx,txt){
     if(r.status>=500){await sleep(3000);continue}
     throw new Error(msg)}
   throw new Error(lastErr||'Ses üretilemedi')}
-function saveKeys(){try{if($('rem').checked)localStorage.setItem('keys_'+$('eng').value,$('keys').value);else localStorage.removeItem('keys_'+$('eng').value)}catch(e){}}
+function saveKeys(){try{if($('rem').checked)localStorage.setItem('keys_all',$('keys').value);else localStorage.removeItem('keys_all')}catch(e){}}
 $('bt').onclick=async()=>{try{saveKeys();const S=scenes();if(!S.length){log('Sahne metni boş','er');return}$('bt').disabled=true;const ctx=AC();await ctx.resume();log('Deneme sesi üretiliyor…');
   const b=await tts(ctx,S[0].txt);log('Hazır: '+b.duration.toFixed(1)+' sn, çalıyor','ok');const s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start()}catch(e){log('Hata: '+e.message,'er')}$('bt').disabled=false};
 $('b1').onclick=async()=>{
@@ -279,7 +287,7 @@ $('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);l
 /* tema bilgisi (sahne sırasına göre) */
 theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
 /* ===== ZİRVE KATMANI ===== */
-const APP={surum:"2.1",tarih:"2026-11-19",satir:344,kb:49.7,onceki:{surum:"2.0",satir:262,kb:25.8},yenilikler:["Anahtar sağlık testi + kopyala/yapıştır","Ekran modu (tahta uyumu), QR paylaşım, karşılama rehberi","Sürüm rozeti ve modül öz-kontrolü","Chrome için uyanık-tut ve sekme uyarısı","Ana ekrana eklenebilir ikon (PWA)"]};
+const APP={surum:"2.2",tarih:"2026-11-19",satir:352,kb:51.9,onceki:{surum:"2.1",satir:344,kb:49.7},yenilikler:["Anahtar türü otomatik algılanır (Gemini AIza… / ElevenLabs sk_…), 401 düzeltildi","Ses/model bulunamazsa hesaptan otomatik seçim","Anahtar sağlık testi + kopyala/yapıştır","Ekran modu (tahta uyumu), QR paylaşım, karşılama rehberi","Sürüm rozeti ve modül öz-kontrolü","Chrome için uyanık-tut ve sekme uyarısı","Ana ekrana eklenebilir ikon (PWA)"]};
 const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
 const SITE_URL="https://baris-ogretmen.github.io/site-1/";
 const ZIRVE=window.ZIRVE={};
@@ -297,10 +305,10 @@ ZIRVE.anahtarTest=async function(key,eng){try{
   if(r.status==401||r.status==400)return{ok:false,durum:'🔴',mesaj:'Geçersiz anahtar'};
   if(r.status==403)return{ok:false,durum:'🔴',mesaj:'İzin yok (anahtarın bu API erişimi kapalı)'};
   return{ok:false,durum:'🔴',mesaj:'HTTP '+r.status}}catch(e){return{ok:false,durum:'🔴',mesaj:'Ağ hatası'}}};
-$('kt').onclick=async()=>{const ks=keyList(),eng=$('eng').value,o=$('ktr');if(!ks.length){o.innerHTML='<small class="er">Önce anahtar yapıştır.</small>';return}o.innerHTML='';
-  for(let i=0;i<ks.length;i++){const r=await ZIRVE.anahtarTest(ks[i],eng),k=ks[i];o.innerHTML+='<div class="kr">'+r.durum+' #'+(i+1)+' '+k.slice(0,6)+'…'+k.slice(-4)+' — '+r.mesaj+'</div>'}};
-$('kc').onclick=async()=>{try{await navigator.clipboard.writeText(keyList().join('\n'));toast('📋 Anahtarlar kopyalandı')}catch(e){toast('Kopyalanamadı')}};
-$('kp').onclick=async()=>{try{const t=await navigator.clipboard.readText();$('keys').value=[...new Set(keyList().concat(t.split(/[\n,;\s]+/).filter(x=>x.length>15)))].join('\n');saveKeys();toast('📥 Yapıştırıldı')}catch(e){toast('Pano okunamadı, elle yapıştır')}};
+$('kt').onclick=async()=>{const ks=allKeys(),o=$('ktr');if(!ks.length){o.innerHTML='<small class="er">Önce anahtar yapıştır.</small>';return}o.innerHTML='';
+  for(let i=0;i<ks.length;i++){const k=ks[i],ty=kType(k)||$('eng').value,r=await ZIRVE.anahtarTest(k,ty);o.innerHTML+='<div class="kr">'+r.durum+' #'+(i+1)+' '+k.slice(0,6)+'…'+k.slice(-4)+' ['+(ty=='gemini'?'Gemini':'ElevenLabs')+'] — '+r.mesaj+'</div>'}};
+$('kc').onclick=async()=>{try{await navigator.clipboard.writeText(allKeys().join('\n'));toast('📋 Anahtarlar kopyalandı')}catch(e){toast('Kopyalanamadı')}};
+$('kp').onclick=async()=>{try{const t=await navigator.clipboard.readText();$('keys').value=[...new Set(allKeys().concat(t.split(/[\n,;\s]+/).filter(x=>x.length>15)))].join('\n');saveKeys();toast('📥 Yapıştırıldı')}catch(e){toast('Pano okunamadı, elle yapıştır')}};
 /* ekran modu */
 (function(){const K='zirve_ekran',seg=$('seg');
  const oto=()=>{const w=Math.max(screen.width,innerWidth),touch=matchMedia('(pointer:coarse)').matches;if(w>=3000)return 1.6;if(w>=1700&&touch&&devicePixelRatio<=1.25)return 1.35;return 1};
@@ -337,7 +345,7 @@ function kontrol(){return MODULLER.map(n=>{let ok=false;try{ok=typeof eval(n)===
  b.style.display='block';b.innerHTML=g&&g!==APP.surum||!g?('🆕 v'+APP.onceki.surum+' → v'+APP.surum+' · Kod: '+APP.onceki.satir+' → '+APP.satir+' satır · 🧪 '+iyi+'/'+k.length+' modül sağlam'):('✅ v'+APP.surum+' · en güncel sürüm');
  setTimeout(()=>b.style.display='none',9000);try{localStorage.setItem('zirve_surum',APP.surum)}catch(e){}
  vb.onclick=()=>{$('vd').innerHTML='<p>Önceki: '+APP.onceki.satir+' satır / '+APP.onceki.kb+' KB<br>Şimdiki: '+APP.satir+' satır / '+APP.kb+' KB</p><ul>'+APP.yenilikler.map(x=>'<li>'+x+'</li>').join('')+'</ul><p>Modüller:<br>'+kontrol().map(x=>(x[1]?'✅ ':'❌ ')+x[0]).join('<br>')+'</p>';$('vm2').style.display='flex'};$('vx').onclick=()=>$('vm2').style.display='none'})();
-function trErr(st,m){const l=String(m).toLowerCase();if(st==401)return 'Anahtar geçersiz (401)';if(st==402)return 'Bu ses/plan için ücretli plan gerekiyor (402)';if(st==403)return 'İzin yok (403): anahtar bu işlem için yetkili değil';if(st==404)return 'Ses veya model bulunamadı (404): başka ses/model seç';if(st==429||/quota|limit|credit/.test(l))return 'Kota doldu ('+st+'). Başka anahtar ekle';if(st==400)return 'Geçersiz istek (400): '+m;return m}
+function trErr(st,m){const l=String(m).toLowerCase();if(st==401)return 'Anahtar reddedildi (401): '+m+' — ElevenLabs anahtarında "Text to Speech" izni açık olmalı';if(st==402)return 'Bu ses/plan için ücretli plan gerekiyor (402)';if(st==403)return 'İzin yok (403): anahtar bu işlem için yetkili değil';if(st==404)return 'Ses veya model bulunamadı (404): başka ses/model seç';if(st==429||/quota|limit|credit/.test(l))return 'Kota doldu ('+st+'). Başka anahtar ekle';if(st==400)return 'Geçersiz istek (400): '+m;return m}
 
 </script>
 </body>
