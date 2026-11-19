@@ -20,7 +20,7 @@ textarea{min-height:200px;font-size:14px}textarea.k{min-height:64px}
 button{background:#d4ab62;color:#14110a;border:0;font-weight:800;font-size:16px;padding:12px 18px;border-radius:999px;cursor:pointer;margin:6px 8px 0 0}
 button.g{background:#232834;color:#ece6d6}button:disabled{opacity:.4}
 video{width:100%;max-height:300px;background:#000;border-radius:8px;margin-top:8px}
-canvas{display:none}
+canvas#cv{display:none;width:100%;max-height:70vh;object-fit:contain;background:#000;border-radius:8px;margin-top:8px}
 #log{white-space:pre-wrap;font-size:12.5px;color:#b9b5a8;max-height:230px;overflow:auto;background:#0b0d12;border-radius:8px;padding:10px;margin-top:10px}
 .bar{height:8px;background:#232834;border-radius:6px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;width:0;background:#d4ab62}
 small{color:#8a877c}.ok{color:#8fd19e}.er{color:#ff8a8a}.wn{color:#e8c27a}
@@ -46,11 +46,12 @@ details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;paddin
 <div class="card"><h2>1 · Video</h2>
 <input type="file" id="vf" accept="video/*">
 <video id="v" playsinline webkit-playsinline muted controls></video>
-<canvas id="cv" width="1280" height="720"></canvas></div>
+<canvas id="cv" width="1080" height="1920"></canvas></div>
 
 <div class="card"><h2>2 · Ses motoru</h2>
 <div class="row"><div><label>Motor</label><select id="eng"><option value="eleven">ElevenLabs (gerçekçi)</option><option value="gemini">Gemini TTS</option></select></div>
 <div><label>Ses</label><select id="voice"></select></div></div>
+<button id="vfetch" class="g" type="button">🔄 Hesabımdaki sesleri getir</button>
 <label>Özel ses kimliği (isteğe bağlı: ElevenLabs "Voice ID")</label><input type="text" id="cvoice" placeholder="boş bırak = yukarıdaki ses">
 <label>API anahtarı / anahtarları (her satıra bir tane; biri biterse sıradakine geçer)</label>
 <textarea id="keys" class="k" spellcheck="false" placeholder="sk_...&#10;sk_..."></textarea>
@@ -59,31 +60,39 @@ details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;paddin
 <label><input type="checkbox" id="rem" checked> Anahtarları bu tarayıcıda hatırla</label>
 <small>ElevenLabs'ta kitaplık sesleri API ile kullanmak için ücretli planda olman gerekir.</small></div>
 
-<div class="card"><h2>3 · Sinematik katman</h2>
-<label><input type="checkbox" id="cine" checked> Müzik + vuruş + geçiş efekti ekle (sahne geçişlerinde patlama ve yükselen ses)</label>
+<div class="card"><h2>3 · Fon müziği &amp; efekt</h2>
+<label>Müzik havası (her sahne için de seçilebilir: satır başına <b>[korku]</b> gibi etiket yaz)</label>
+<select id="mood"><option value="oto">🤖 Otomatik · metne göre ben seçerim</option><option value="gerilim">😬 Gerilim</option><option value="korku">👻 Korku</option><option value="duygusal">💧 Duygusal</option><option value="umut">🌅 Umut / İlham</option><option value="aksiyon">⚡ Aksiyon</option><option value="haber">📰 Haber bülteni</option><option value="sakin">🌙 Sakin belgesel</option></select>
+<button id="mtest" class="g">🎧 Müziği dinle (8 sn)</button>
+<label>Kendi müziğim (isteğe bağlı · telifsiz bir mp3 seç; konuşurken otomatik kısılır)</label>
+<input type="file" id="mf" accept="audio/*"> <button id="mfx" class="g" style="display:none">✕ Kendi müziğimi kaldır</button>
+<label><input type="checkbox" id="cine" checked> Fon müziği + sahne geçiş efektleri açık</label>
 <div class="rg"><span>Müzik</span><input type="range" id="vm" min="0" max="100" value="45"><b id="vmv">45</b></div>
-<div class="rg"><span>Efekt</span><input type="range" id="vs" min="0" max="100" value="60"><b id="vsv">60</b></div>
-<div class="rg"><span>Anlatım</span><input type="range" id="vn" min="50" max="200" value="120"><b id="vnv">120</b></div></div>
+<div class="rg"><span>Efekt</span><input type="range" id="vs" min="0" max="100" value="45"><b id="vsv">45</b></div>
+<div class="rg"><span>Anlatım</span><input type="range" id="vn" min="50" max="200" value="130"><b id="vnv">130</b></div>
+<div class="rg"><span>Konuşma hızı</span><input type="range" id="hiz" min="85" max="120" value="105"><b id="hizv">105</b></div>
+<small>Hazır müzikler bu sayfada sentezlenir, hiçbir şarkıdan alınmaz, telif sorunu yoktur. Kendi müziğini seçersen telifsiz olduğundan emin ol (YouTube Ses Kitaplığı, Pixabay Music).</small></div>
 
-<div class="card"><h2>4 · Sahne metinleri</h2>
+<div class="card"><h2>4 · Video biçimi</h2>
+<div class="row"><div><label>Biçim</label><select id="fmt"><option value="v">📱 Dikey 9:16 · WhatsApp durumu</option><option value="h">🖥️ Yatay 16:9 · YouTube</option></select></div>
+<div><label>&nbsp;</label><label><input type="checkbox" id="sub" checked> Altyazı göm (sessiz izleyenler için)</label></div></div>
+<div class="row"><div><label>Üst yazı</label><input type="text" id="kust" value="KÖŞE YAZISI · 1"></div><div><label>Başlık</label><input type="text" id="kbas" value="Cebimizdeki Hesap"></div></div>
+<label>İmza</label><input type="text" id="imza" value="baris-ogretmen.github.io/site-1">
+<canvas id="cvp" width="270" height="480" style="display:block;margin:10px auto 0;border-radius:10px;border:1px solid #2c3342;max-width:60%"></canvas></div>
+
+<div class="card"><h2>5 · Sahne metinleri</h2>
+<label>Hazır metin</label><select id="hazir"><option value="kose1">Köşe Yazısı 1 · Cebimizdeki Hesap (1 dk)</option><option value="tam">Hesap Vakti · tam belgesel (3:46)</option><option value="bos">Boş · kendi metnim</option></select>
 <small>Her satır: <b>başlangıç | okunacak metin</b> (örn. <b>1:25 | Metin…</b>). Sahne, sonraki satırın başlangıcında biter.</small>
-<textarea id="lines" spellcheck="false">0:00.0 | 2002'de bir vaatle başladı. Yirmi dört yıl sonra sloganları değil, açıklanmış rakamları konuşuyoruz. Önce hakkını verelim, sonra hesabı soralım.
-0:10.1 | Hakkını teslim edelim: köprüler, havalimanları, hastaneler ve savunma sanayisinde büyük yatırımlar yapıldı, ekonomi büyüdü. Mesele bu emeği inkâr etmek değil; bedelini ve bugünkü tabloyu sormak.
-0:22.8 | 2002'de bir dolar yaklaşık bir buçuk liraydı. Ekim 2026'da Merkez Bankası kuruyla yaklaşık kırk dokuz lira. Lira, dolar karşısında değerinin yüzde doksan yedisini yitirdi.
-0:35.0 | TÜİK'in açıkladığı yıllık enflasyon ekimde yüzde 29 virgül 77. Enflasyon Araştırma Grubu ENAG ise yüzde 45 hesaplıyor. Hangisi doğru olursa olsun, fiyatlar bir yılda yüzde otuz ile kırk beş arasında arttı.
-0:50.3 | 2026 asgari ücreti net 28 bin 75 lira. Türk-İş'in Ağustos hesabına göre dört kişilik bir ailenin yalnızca gıda harcaması 37 bin 388 lira; yoksulluk sınırı ise 121 bin 786 lira.
-1:05.1 | Freedom House'un 2026 raporunda Türkiye yüz üzerinden otuz iki puanla özgür değil. 2005'ten bu yana otuz üç puan kaybetti ve iki bin on sekizden beri, Freedom House'un Avrupa sınıflamasında bu statüdeki tek ülke. Adil yargılanma başlığında alabileceği en düşük not verildi.
-1:24.7 | Avrupa İnsan Hakları Mahkemesi, 2019'da Osman Kavala için, 2020'de Selahattin Demirtaş için tahliye kararı verdi. Türkiye uymadı; Avrupa Konseyi, Kavala dosyasında tarihinde nadir görülen ihlal prosedürünü başlattı.
-1:38.2 | Mart 2025'te muhalefetin cumhurbaşkanı adayı Ekrem İmamoğlu tutuklandı; dört yüzden fazla sanıklı dava sürüyor ve kendisi suçlamaları reddediyor. İki bin yirmi dörtten beri onlarca seçilmiş belediye başkanı görevden alındı; bianet'in derlemesine göre on üç belediyeye kayyum atandı.
-1:56.1 | Sınır Tanımayan Gazeteciler'in 2026 endeksinde Türkiye yüz seksen ülke arasında yüz altmış üçüncü; 2002'deki ilk endekste yüzüncü civarındaydı, o yıl yalnızca yüz otuz dokuz ülke vardı. Dezenformasyon ve cumhurbaşkanına hakaret maddeleri, gazetecilere karşı sık kullanılan araçlar arasında.
-2:14.0 | Transparency International'a göre Türkiye 2013'te elli puandı. İki bin yirmi beşte otuz bir puan ve yüz seksen iki ülke arasında yüz yirmi dördüncü. Dünya Adalet Projesi de hukukun üstünlüğünde yüz kırk üç ülke arasında yüz on sekizinci diyor.
-2:32.3 | 6 Şubat 2023'te resmî rakamlarla elli üç bin beş yüz otuz yedi insan hayatını kaybetti. 2018'de, genel seçimden yaklaşık altı hafta önce yasalaşan imar affına milyonlarca başvuru yapıldı. Müteahhitler yargılandı; aileler, kamu görevlilerinin yargılanmasının yavaş ilerlediğini söylüyor.
-2:50.2 | Bunlar bir partinin değil, bir yönetim biçiminin karnesi: kur, fiyat, ücret, yargı, basın, seçim ve deprem. Her biri ayrı tartışılabilir, ama hepsi aynı soruya çıkıyor. Yönetenler, yönetilenlere hesap veriyor mu?
-3:05.0 | Adil olalım: iktidar, enflasyonun zirvesinden düştüğünü, yatırımların sürdüğünü ve davaların bağımsız yargıda yürüdüğünü söylüyor; Adalet Bakanı da bu endeksi haksız bulmuştu. Bu savunma dinlenmeli, ama rakamların ve kararların yanında sınanmalı.
-3:19.8 | Muhalif de yandaş da aynı şeyi hak ediyor: bağımsız yargı, özgür basın, adil bir sandık ve doğru rakam. Bunları savunmak bir partiyi değil, hepimizin ortak evini savunmaktır. Hesap sormak bir hak; hesap vermek ise bir görevdir.
-3:37.3 | Kaynaklar ekranda. İzlediğiniz için teşekkürler.</textarea></div>
+<textarea id="lines" spellcheck="false">0:00 | Bugün slogan değil, cebimizdeki hesabı konuşalım.
+0:07 | Önce hakkını verelim: yollar, köprüler, hastaneler yapıldı. Bunu inkâr etmiyorum.
+0:13 | Ama 2002'de bir dolar bir buçuk liraydı. Bugün elli liranın üzerinde.
+0:19 | TÜİK yıllık enflasyonu yüzde 29,77 diyor, ENAG yüzde 45. Hangisine inanırsanız inanın, fiyatlar hızla artıyor.
+0:27 | Net asgari ücret 28 bin 75 lira. Türk-İş'in ekim hesabıyla dört kişilik bir ailenin yalnız mutfak masrafı 38 bin 24 lira.
+0:37 | Yani evin tek çalışanı tüm maaşını verse, sofrayı bile dolduramıyor.
+0:44 | İktidar enflasyonun zirveden düştüğünü söylüyor; doğru. Ama düşmek, ucuzlamak demek değil.
+0:51 | İktidarı destekleyen de eleştiren de aynı markete giriyor. Hesap sormak kimseye düşmanlık değil, hepimizin hakkı. Sağlıcakla kalın.</textarea></div>
 
-<div class="card"><h2>5 · Üret ve kaydet</h2>
+<div class="card"><h2>6 · Üret ve kaydet</h2>
 <button id="bt" class="g">🔊 Ses dene (1. sahne)</button><br>
 <button id="b1">① Sesleri üret</button><button id="b2" class="g" disabled>② Önizle</button><button id="b3" disabled>③ Sesli videoyu kaydet</button><br>
 <button id="b4" class="g" disabled>④ Yedek: ses paketini indir (WAV + plan)</button>
@@ -108,20 +117,47 @@ const $=id=>document.getElementById(id);
 const log=(m,c)=>{const d=$('log');d.innerHTML+=(c?'<span class="'+c+'">':'')+String(m).replace(/</g,'&lt;')+(c?'</span>':'')+'\n';d.scrollTop=1e9};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const MOCK=new URLSearchParams(location.search).get('mock');
+const HAZIR={kose1:{lines:`0:00 | Bugün slogan değil, cebimizdeki hesabı konuşalım.
+0:07 | Önce hakkını verelim: yollar, köprüler, hastaneler yapıldı. Bunu inkâr etmiyorum.
+0:13 | Ama 2002'de bir dolar bir buçuk liraydı. Bugün elli liranın üzerinde.
+0:19 | TÜİK yıllık enflasyonu yüzde 29,77 diyor, ENAG yüzde 45. Hangisine inanırsanız inanın, fiyatlar hızla artıyor.
+0:27 | Net asgari ücret 28 bin 75 lira. Türk-İş'in ekim hesabıyla dört kişilik bir ailenin yalnız mutfak masrafı 38 bin 24 lira.
+0:37 | Yani evin tek çalışanı tüm maaşını verse, sofrayı bile dolduramıyor.
+0:44 | İktidar enflasyonun zirveden düştüğünü söylüyor; doğru. Ama düşmek, ucuzlamak demek değil.
+0:51 | İktidarı destekleyen de eleştiren de aynı markete giriyor. Hesap sormak kimseye düşmanlık değil, hepimizin hakkı. Sağlıcakla kalın.`,ust:'KÖŞE YAZISI · 1',bas:'Cebimizdeki Hesap',fmt:'v'},tam:{lines:`0:00.0 | 2002'de bir vaatle başladı. Yirmi dört yıl sonra sloganları değil, açıklanmış rakamları konuşuyoruz. Önce hakkını verelim, sonra hesabı soralım.
+0:10.1 | Hakkını teslim edelim: köprüler, havalimanları, hastaneler ve savunma sanayisinde büyük yatırımlar yapıldı, ekonomi büyüdü. Mesele bu emeği inkâr etmek değil; bedelini ve bugünkü tabloyu sormak.
+0:22.8 | 2002'de bir dolar yaklaşık bir buçuk liraydı. Ekim 2026'da Merkez Bankası kuruyla yaklaşık kırk dokuz lira. Lira, dolar karşısında değerinin yüzde doksan yedisini yitirdi.
+0:35.0 | TÜİK'in açıkladığı yıllık enflasyon ekimde yüzde 29 virgül 77. Enflasyon Araştırma Grubu ENAG ise yüzde 45 hesaplıyor. Hangisi doğru olursa olsun, fiyatlar bir yılda yüzde otuz ile kırk beş arasında arttı.
+0:50.3 | 2026 asgari ücreti net 28 bin 75 lira. Türk-İş'in Ağustos hesabına göre dört kişilik bir ailenin yalnızca gıda harcaması 37 bin 388 lira; yoksulluk sınırı ise 121 bin 786 lira.
+1:05.1 | Freedom House'un 2026 raporunda Türkiye yüz üzerinden otuz iki puanla özgür değil. 2005'ten bu yana otuz üç puan kaybetti ve iki bin on sekizden beri, Freedom House'un Avrupa sınıflamasında bu statüdeki tek ülke. Adil yargılanma başlığında alabileceği en düşük not verildi.
+1:24.7 | Avrupa İnsan Hakları Mahkemesi, 2019'da Osman Kavala için, 2020'de Selahattin Demirtaş için tahliye kararı verdi. Türkiye uymadı; Avrupa Konseyi, Kavala dosyasında tarihinde nadir görülen ihlal prosedürünü başlattı.
+1:38.2 | Mart 2025'te muhalefetin cumhurbaşkanı adayı Ekrem İmamoğlu tutuklandı; dört yüzden fazla sanıklı dava sürüyor ve kendisi suçlamaları reddediyor. İki bin yirmi dörtten beri onlarca seçilmiş belediye başkanı görevden alındı; bianet'in derlemesine göre on üç belediyeye kayyum atandı.
+1:56.1 | Sınır Tanımayan Gazeteciler'in 2026 endeksinde Türkiye yüz seksen ülke arasında yüz altmış üçüncü; 2002'deki ilk endekste yüzüncü civarındaydı, o yıl yalnızca yüz otuz dokuz ülke vardı. Dezenformasyon ve cumhurbaşkanına hakaret maddeleri, gazetecilere karşı sık kullanılan araçlar arasında.
+2:14.0 | Transparency International'a göre Türkiye 2013'te elli puandı. İki bin yirmi beşte otuz bir puan ve yüz seksen iki ülke arasında yüz yirmi dördüncü. Dünya Adalet Projesi de hukukun üstünlüğünde yüz kırk üç ülke arasında yüz on sekizinci diyor.
+2:32.3 | 6 Şubat 2023'te resmî rakamlarla elli üç bin beş yüz otuz yedi insan hayatını kaybetti. 2018'de, genel seçimden yaklaşık altı hafta önce yasalaşan imar affına milyonlarca başvuru yapıldı. Müteahhitler yargılandı; aileler, kamu görevlilerinin yargılanmasının yavaş ilerlediğini söylüyor.
+2:50.2 | Bunlar bir partinin değil, bir yönetim biçiminin karnesi: kur, fiyat, ücret, yargı, basın, seçim ve deprem. Her biri ayrı tartışılabilir, ama hepsi aynı soruya çıkıyor. Yönetenler, yönetilenlere hesap veriyor mu?
+3:05.0 | Adil olalım: iktidar, enflasyonun zirvesinden düştüğünü, yatırımların sürdüğünü ve davaların bağımsız yargıda yürüdüğünü söylüyor; Adalet Bakanı da bu endeksi haksız bulmuştu. Bu savunma dinlenmeli, ama rakamların ve kararların yanında sınanmalı.
+3:19.8 | Muhalif de yandaş da aynı şeyi hak ediyor: bağımsız yargı, özgür basın, adil bir sandık ve doğru rakam. Bunları savunmak bir partiyi değil, hepimizin ortak evini savunmaktır. Hesap sormak bir hak; hesap vermek ise bir görevdir.
+3:37.3 | Kaynaklar ekranda. İzlediğiniz için teşekkürler.`,ust:'BELGESEL',bas:'Hesap Vakti',fmt:'h'},bos:{lines:'0:00 | ',ust:'KÖŞE YAZISI',bas:'',fmt:'v'}};
 /* ---------- motor tanımları ---------- */
 const ENG={
- eleven:{voices:[["Celil · derin belgesel anlatıcı","Zpbxhg6LG47cY8y5BJrf"],["Ömür · sıcak, derin baritonu","X6EHbOBe9sjpG7kyfrOA"],["Ahmet · güçlü ve derin","ZsYcqahfiS2dy4J6XYC5"],["Muhammer · profesyonel","GLHtjkeLJ9Rxcv9JhLmh"],["Yusuf · hikâye anlatıcı","tOqnHSMt5y3uRBgH7e8J"],["Atakan · dinamik","gsJ9nrlXYbPztJxC4fwc"]],models:["eleven_multilingual_v2","eleven_v3","eleven_turbo_v2_5"]},
+ eleven:{voices:[["George · sıcak, olgun anlatıcı (önerilen)","JBFqnCBsd6RMkjVDRZzb"],["Celil · derin belgesel anlatıcı","Zpbxhg6LG47cY8y5BJrf"],["Ömür · sıcak, derin baritonu","X6EHbOBe9sjpG7kyfrOA"],["Ahmet · güçlü ve derin","ZsYcqahfiS2dy4J6XYC5"],["Muhammer · profesyonel","GLHtjkeLJ9Rxcv9JhLmh"],["Yusuf · hikâye anlatıcı","tOqnHSMt5y3uRBgH7e8J"],["Atakan · dinamik","gsJ9nrlXYbPztJxC4fwc"]],models:["eleven_multilingual_v2","eleven_v3","eleven_turbo_v2_5"]},
  gemini:{voices:["Charon","Kore","Fenrir","Orus","Puck","Aoede","Algenib","Alnilam"].map(x=>[x,x]),models:["gemini-2.5-flash-preview-tts","gemini-2.5-pro-preview-tts"]}};
 const PRE={aksiyon:{st:.25,sty:.65,sp:1.08,g:"Gergin, enerjik ve etkileyici bir belgesel anlatıcısı gibi, vurgulu ve net oku:"},dram:{st:.4,sty:.4,sp:1.0,g:"Derin, ağırbaşlı, dramatik bir belgesel anlatıcısı gibi oku:"},sakin:{st:.65,sty:.1,sp:1.0,g:"Sakin ve net bir belgesel anlatıcısı gibi oku:"}};
 function fillEng(){const e=ENG[$('eng').value];$('voice').innerHTML=e.voices.map(v=>'<option value="'+v[1]+'">'+v[0]+'</option>').join('');$('model').innerHTML=e.models.map(m=>'<option>'+m+'</option>').join('')}
 $('eng').onchange=fillEng;fillEng();
+$('vfetch').onclick=async()=>{const k=keyList('eleven')[0];if(!k){log('Önce ElevenLabs anahtarını (sk_…) yapıştır.','er');return}
+ try{const r=await fetch('https://api.elevenlabs.io/v1/voices?page_size=100',{headers:{'xi-api-key':k}});if(!r.ok)throw new Error('HTTP '+r.status);const vs=(await r.json()).voices||[];
+  if(!vs.length){log('Hesabında ses bulunamadı.','wn');return}$('eng').value='eleven';fillEng();
+  $('voice').innerHTML=vs.map(v=>'<option value="'+v.voice_id+'">'+v.name+(v.labels&&v.labels.accent?' · '+v.labels.accent:'')+(v.category?' ('+v.category+')':'')+'</option>').join('');
+  const g=vs.find(v=>/george/i.test(v.name));if(g)$('voice').value=g.voice_id;log(vs.length+' ses getirildi. Listeden seçip "Ses dene" ile dinle.','ok')}catch(e){log('Sesler alınamadı: '+e.message,'er')}};
 try{$('keys').value=[...new Set(['keys_all','keys_eleven','keys_gemini'].flatMap(k=>(localStorage.getItem(k)||'').split(/[\n,;\s]+/)).filter(Boolean))].join('\n')}catch(e){}
-['vm','vs','vn'].forEach(i=>$(i).oninput=()=>$(i+'v').textContent=$(i).value);
+['vm','vs','vn','hiz'].forEach(i=>$(i).oninput=()=>$(i+'v').textContent=$(i).value);
 const V=$('v');
 $('vf').onchange=e=>{const f=e.target.files[0];if(!f)return;V.src=URL.createObjectURL(f);V.onloadedmetadata=()=>log('Video yüklendi: '+V.duration.toFixed(1)+' sn','ok')};
 /* ---------- sahneler ---------- */
 function parseT(s){s=s.trim();if(s.includes(':')){const p=s.split(':').map(parseFloat);return p.length==3?p[0]*3600+p[1]*60+p[2]:p[0]*60+p[1]}return parseFloat(s)}
-function scenes(){const a=[];$('lines').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(l=>{const i=l.indexOf('|');if(i<0)return;const t=parseT(l.slice(0,i)),x=l.slice(i+1).trim();if(!isNaN(t)&&x)a.push({s:t,txt:x})});
+function scenes(){const a=[];$('lines').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(l=>{const i=l.indexOf('|');if(i<0)return;const t=parseT(l.slice(0,i));let x=l.slice(i+1).trim(),mo=null;const mm=/^\[([a-zçğıöşü]+)\]\s*/i.exec(x);if(mm){mo=mm[1].toLocaleLowerCase('tr');x=x.slice(mm[0].length)}if(!isNaN(t)&&x)a.push({s:t,txt:x,mood:MOODS[mo]?mo:null})});
   const D=V.duration||0;a.forEach((x,i)=>x.e=i<a.length-1?a[i+1].s:(D||x.s+10));return a}
 let bufs=[],cacheKey=[],theme=[];
 const AC=()=>new (window.AudioContext||window.webkitAudioContext)();
@@ -148,12 +184,12 @@ async function tts(ctx,txt){
       url='https://api.elevenlabs.io/v1/text-to-speech/'+encodeURIComponent(vid)+'?output_format=mp3_44100_128';
       headers={'xi-api-key':key,'Content-Type':'application/json','Accept':'audio/mpeg'};
       const v3=/v3/.test(model);
-      body={text:txt,model_id:model,voice_settings:{stability:v3?(P.st<.3?0:.5):P.st,similarity_boost:.8,style:P.sty,use_speaker_boost:true,speed:Math.min(1.2,P.sp)}};
+      body={text:txt,model_id:model,voice_settings:{stability:v3?(P.st<.3?0:.5):P.st,similarity_boost:.8,style:P.sty,use_speaker_boost:true,speed:Math.max(.7,Math.min(1.2,P.sp*$('hiz').value/105))}};
       if(/v3|turbo|flash/.test(model))body.language_code='tr';
     }else{
       url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key);
       headers={'Content-Type':'application/json'};
-      body={contents:[{parts:[{text:P.g+' '+txt}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$('voice').value}}}}};
+      body={contents:[{parts:[{text:P.g+($('hiz').value>108?' Tempolu ve biraz hızlı oku.':$('hiz').value<95?' Yavaş ve tane tane oku.':'')+' '+txt}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$('voice').value}}}}};
     }
     try{r=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)})}catch(e){throw new Error('Ağ hatası: '+e.message)}
     if(r.ok){
@@ -181,7 +217,7 @@ $('b1').onclick=async()=>{
   const S=scenes();if(!S.length){log('Sahne metni boş.','er');return}
   saveKeys();['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);
   const ctx=AC();await ctx.resume();
-  const ck=()=>[$('eng').value,$('voice').value,$('cvoice').value,$('model').value,$('preset').value].join('|');
+  const ck=()=>[$('eng').value,$('voice').value,$('cvoice').value,$('model').value,$('preset').value,$('hiz').value].join('|');
   try{for(let i=0;i<S.length;i++){
       $('pr').style.width=(i/S.length*100)+'%';
       if(bufs[i]&&cacheKey[i]===ck()+S[i].txt){log('Sahne '+(i+1)+': önbellekte');continue}
@@ -194,49 +230,101 @@ $('b1').onclick=async()=>{
   $('b1').disabled=false};
 /* ---------- zaman planı ---------- */
 const LEAD=.45;
-function plan(){const S=scenes();let W=0;return S.map((x,i)=>{const d=x.e-x.s,a=bufs[i]?bufs[i].duration:0,fade=Math.min(.5,d*.3);const hold=Math.max(d-fade,a+LEAD+.3);const w=hold+fade;const p={i,s:x.s,e:x.e,d,a,fade,hold,w,W0:W};W+=w;return p})}
+function plan(){const S=scenes();let W=0;return S.map((x,i)=>{const d=x.e-x.s,a=bufs[i]?bufs[i].duration:0,fade=Math.min(.5,d*.3);const hold=Math.max(d-fade,a+LEAD+.3);const w=hold+fade;const mv=$('mood').value;const p={i,s:x.s,e:x.e,d,a,fade,hold,w,W0:W,txt:x.txt,mood:x.mood||(mv=='oto'?autoMood(x.txt,theme[i]):mv)};W+=w;return p})}
 /* ---------- sinematik katman ---------- */
+/* ===== FON MÜZİĞİ MOTORU (sentez, telifsiz) ===== */
+const MOODS={
+ gerilim:{ad:'Gerilim',root:49,ch:[1,1.189,1.498],wave:'sawtooth',lp:750,bpm:96,kick:.7,hat:.5,tick:1,boom:1,riser:1},
+ korku:{ad:'Korku',root:41.2,ch:[1,1.059,1.414],wave:'sawtooth',lp:480,bpm:60,heart:1,shimmer:1,boom:.8,riser:1},
+ duygusal:{ad:'Duygusal',root:55,ch:[1,1.189,1.498,2],wave:'triangle',lp:1200,bpm:70,arp:1,boom:.2,riser:.35},
+ umut:{ad:'Umut / İlham',root:65.4,ch:[1,1.26,1.498,2],wave:'triangle',lp:1500,bpm:84,kick:.35,hat:.25,arp:1,boom:.4,riser:.6},
+ aksiyon:{ad:'Aksiyon',root:55,ch:[1,1.498,2],wave:'sawtooth',lp:1500,bpm:124,kick:1,hat:1,eighth:1,boom:1.2,riser:1},
+ haber:{ad:'Haber bülteni',root:58.3,ch:[1,1.498,2],wave:'sine',lp:900,bpm:100,kick:.3,hat:.3,tickArp:1,boom:.5,riser:.5},
+ sakin:{ad:'Sakin belgesel',root:55,ch:[1,1.498,2.52],wave:'sine',lp:700,bpm:0,chime:1,boom:.2,riser:.3}};
+function autoMood(txt,th){const s=String(txt).toLocaleLowerCase('tr');
+ if(/hayatını kaybet|deprem|enkaz|ölüm|öldü|yetim|sofra|mutfak|aile|çocuk|anne|baba|gözyaşı|acı/.test(s))return 'duygusal';
+ if(/korku|karanlık|kâbus|kabus|dehşet|ürper/.test(s))return 'korku';
+ if(/sağlıcakla|hepimizin hakkı|teşekkür/.test(s))return 'umut';
+ if(/iktidar|savunu|açıkladı|rapor|endeks|kaynak/.test(s))return 'haber';
+ if(/dolar|enflasyon|yüzde|lira|tutukla|cezaev|kayyum|yargı|baskı|yolsuz|kriz|yoksul|zam/.test(s))return 'gerilim';
+ if(/\bhak|umut|birlikte|gelecek|yarın|teşekkür|sağlıcakla|yapıldı|başar/.test(s))return 'umut';
+ if(/hesab|konuşalım|göre|söylüyor/.test(s))return 'haber';
+ return ($('hazir').value=='tam'&&({rose:'gerilim',amber:'duygusal',blue:'haber'})[th])||'sakin'}
 function noiseBuf(ctx){const b=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b}
+function pluck(ctx,out,t,f,v,dur){dur=dur||1.2;const g=ctx.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);g.connect(out);
+ [['sine',1,1],['triangle',2,.25]].forEach(([ty,mul,lv])=>{const o=ctx.createOscillator(),og=ctx.createGain();o.type=ty;o.frequency.value=f*mul;og.gain.value=lv;o.connect(og);og.connect(g);o.start(t);o.stop(t+dur+.05)})}
+function kick(ctx,out,t,v,f0){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(f0||150,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.25);o.connect(g);g.connect(out);o.start(t);o.stop(t+.3)}
+function hat(ctx,out,NB,t,v){const n=ctx.createBufferSource();n.buffer=NB;const f=ctx.createBiquadFilter();f.type='highpass';f.frequency.value=6500;const g=ctx.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);n.connect(f);f.connect(g);g.connect(out);n.start(t,Math.random(),.08)}
+function musicScene(ctx,out,NB,m,p,t,end){
+ const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=m.lp;lp.Q.value=.7;const pg=ctx.createGain();lp.connect(pg);pg.connect(out);
+ const top=.5;pg.gain.setValueAtTime(.0001,t);pg.gain.linearRampToValueAtTime(top,t+.6);
+ if(p.a>0){pg.gain.setTargetAtTime(top*.55,t+LEAD,.3);pg.gain.setTargetAtTime(top,t+LEAD+p.a+.1,.5)}
+ pg.gain.setTargetAtTime(.0001,end-.2,.15);const stop=end+.9;
+ m.ch.forEach((c,ci)=>{(m.wave=='sawtooth'?[0,8]:[0]).forEach(dt=>{const os=ctx.createOscillator();os.type=m.wave;os.frequency.value=m.root*2*c;os.detune.value=dt;const g=ctx.createGain();g.gain.value=(m.wave=='sawtooth'?.08:.15)/(1+ci*.3);os.connect(g);g.connect(lp);os.start(t);os.stop(stop)})});
+ const sub=ctx.createOscillator();sub.type='sine';sub.frequency.value=m.root;const sg=ctx.createGain();sg.gain.value=.3;sub.connect(sg);sg.connect(lp);sub.start(t);sub.stop(stop);
+ if(m.shimmer)[1,1.059].forEach(r=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=m.root*24*r;const g=ctx.createGain();g.gain.value=.022;const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.3+Math.random()*.4;lg.gain.value=.018;lfo.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(out);o.start(t);o.stop(stop);lfo.start(t);lfo.stop(stop)});
+ if(!m.bpm){if(m.chime)for(let tt=t+1.2;tt<end-1;tt+=3.2)pluck(ctx,out,tt,m.root*16*m.ch[(Math.random()*m.ch.length)|0],.1,2.5);return}
+ const beat=60/m.bpm,notes=[...m.ch.map(c=>m.root*8*c),m.root*16];let b=0;
+ for(let tt=t+.6;tt<end-1;tt+=beat/2,b++){const on=b%2==0,bi=b>>1;
+  if(m.kick&&on&&(m.eighth||bi%2==0))kick(ctx,out,tt,.6*m.kick);
+  if(m.heart&&on&&bi%2==0){kick(ctx,out,tt,.5,70);kick(ctx,out,tt+.22,.32,70)}
+  if(m.hat&&(m.eighth||!on))hat(ctx,out,NB,tt,.12*m.hat);
+  if(m.tick&&on)pluck(ctx,out,tt,1760,.025,.05);
+  if(m.arp)pluck(ctx,out,tt,notes[b%notes.length],.09,1.3);
+  if(m.tickArp&&on)pluck(ctx,out,tt,m.root*(bi%4==0?16:8),.08,.4)}}
+function sfxScene(ctx,sfx,NB,m,p,t,end,more){
+ if(m.boom){const B=m.boom,bo=ctx.createOscillator(),bg=ctx.createGain();bo.type='sine';bo.frequency.setValueAtTime(110,t);bo.frequency.exponentialRampToValueAtTime(34,t+.9);bg.gain.setValueAtTime(.9*B,t);bg.gain.exponentialRampToValueAtTime(.001,t+1.3);bo.connect(bg);bg.connect(sfx);bo.start(t);bo.stop(t+1.4);
+  const nz=ctx.createBufferSource();nz.buffer=NB;const nf=ctx.createBiquadFilter();nf.type='lowpass';nf.frequency.setValueAtTime(2400,t);nf.frequency.exponentialRampToValueAtTime(200,t+.7);const ng=ctx.createGain();ng.gain.setValueAtTime(.45*B,t);ng.gain.exponentialRampToValueAtTime(.001,t+.8);nz.connect(nf);nf.connect(ng);ng.connect(sfx);nz.start(t,0,1)}
+ if(more&&m.riser){const rt=end-1.15,rn=ctx.createBufferSource();rn.buffer=NB;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.Q.value=2.2;bp.frequency.setValueAtTime(300,rt);bp.frequency.exponentialRampToValueAtTime(5200,rt+1.1);const rg=ctx.createGain();rg.gain.setValueAtTime(.0001,rt);rg.gain.exponentialRampToValueAtTime(.45*m.riser,rt+1.05);rg.gain.linearRampToValueAtTime(0,rt+1.15);rn.connect(bp);bp.connect(rg);rg.connect(sfx);rn.start(rt,0,1.2)}}
+let musicBuf=null;
 function schedule(ctx,master,P,t0,o){
-  /* anlatım */
-  const ng=ctx.createGain();ng.gain.value=o.vn;ng.connect(master);
-  P.forEach(p=>{const s=ctx.createBufferSource();s.buffer=bufs[p.i];s.connect(ng);s.start(t0+p.W0+LEAD)});
-  if(!o.cine)return;
-  const mus=ctx.createGain();mus.gain.value=o.vm;mus.connect(master);
-  const sfx=ctx.createGain();sfx.gain.value=o.vs;sfx.connect(master);
-  const NB=noiseBuf(ctx),total=P[P.length-1].W0+P[P.length-1].w;
-  /* drone + pad (tema köküne göre) */
-  const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=900;lp.Q.value=.6;lp.connect(mus);
-  const dg=ctx.createGain();dg.gain.value=.0;dg.connect(lp);
-  const oscs=[['sawtooth',1,0],['sawtooth',1,9],['triangle',4,0],['sine',2,0]].map(([ty,mul,det])=>{const os=ctx.createOscillator();os.type=ty;os.detune.value=det;const g=ctx.createGain();g.gain.value=ty=='triangle'?.25:ty=='sine'?.6:.35;os.connect(g);g.connect(dg);os.start(t0);os.stop(t0+total+1);return {os,mul}});
-  const ROOT={blue:55,amber:49,rose:41.2};
-  P.forEach(p=>{const root=ROOT[theme[p.i]]||55,t=t0+p.W0;
-    oscs.forEach(x=>{x.os.frequency.setTargetAtTime(root*x.mul,t,.4)});
-    /* ses kısma: anlatım sırasında müzik düşük */
-    dg.gain.setTargetAtTime(.22,t+LEAD-.1,.25);
-    dg.gain.setTargetAtTime(.6,t+LEAD+p.a+.05,.5);
-    dg.gain.setTargetAtTime(.22,t+p.W0*0+p.w+LEAD-.1,.01);
-    /* vuruş + patlama */
-    const bo=ctx.createOscillator(),bg=ctx.createGain();bo.type='sine';bo.frequency.setValueAtTime(110,t);bo.frequency.exponentialRampToValueAtTime(34,t+.9);bg.gain.setValueAtTime(1.0,t);bg.gain.exponentialRampToValueAtTime(.001,t+1.3);bo.connect(bg);bg.connect(sfx);bo.start(t);bo.stop(t+1.4);
-    const nz=ctx.createBufferSource();nz.buffer=NB;const nf=ctx.createBiquadFilter();nf.type='lowpass';nf.frequency.setValueAtTime(2400,t);nf.frequency.exponentialRampToValueAtTime(200,t+.7);const ngn=ctx.createGain();ngn.gain.setValueAtTime(.55,t);ngn.gain.exponentialRampToValueAtTime(.001,t+.8);nz.connect(nf);nf.connect(ngn);ngn.connect(sfx);nz.start(t,0,1);
-    /* yükselen geçiş sesi */
-    if(p.i<P.length-1){const rt=t+p.w-1.15,rn=ctx.createBufferSource();rn.buffer=NB;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.Q.value=2.2;bp.frequency.setValueAtTime(300,rt);bp.frequency.exponentialRampToValueAtTime(5200,rt+1.1);const rg=ctx.createGain();rg.gain.setValueAtTime(.0001,rt);rg.gain.exponentialRampToValueAtTime(.5,rt+1.05);rg.gain.linearRampToValueAtTime(0,rt+1.15);rn.connect(bp);bp.connect(rg);rg.connect(sfx);rn.start(rt,0,1.2)}
-    /* nabız: kick + hat */
-    const bpm=theme[p.i]=='rose'?104:theme[p.i]=='amber'?96:88,beat=60/bpm,inten=theme[p.i]=='rose'?.9:theme[p.i]=='amber'?.7:.5;
-    for(let b=0,tt=t+.8;tt<t+p.w-1.2;b++,tt+=beat){
-      if(b%2==0){const ko=ctx.createOscillator(),kg=ctx.createGain();ko.type='sine';ko.frequency.setValueAtTime(150,tt);ko.frequency.exponentialRampToValueAtTime(48,tt+.12);kg.gain.setValueAtTime(.55*inten,tt);kg.gain.exponentialRampToValueAtTime(.001,tt+.22);ko.connect(kg);kg.connect(mus);ko.start(tt);ko.stop(tt+.25)}
-      const hn=ctx.createBufferSource();hn.buffer=NB;const hf=ctx.createBiquadFilter();hf.type='highpass';hf.frequency.value=6500;const hg=ctx.createGain();hg.gain.setValueAtTime(.14*inten,tt+beat/2);hg.gain.exponentialRampToValueAtTime(.001,tt+beat/2+.05);hn.connect(hf);hf.connect(hg);hg.connect(mus);hn.start(tt+beat/2,0,.08)}
-  });
-  dg.gain.setValueAtTime(.0001,t0);
-}
-function opts(){return{cine:$('cine').checked,vm:$('vm').value/100*1.4,vs:$('vs').value/100*1.0,vn:$('vn').value/100*1.0}}
+ const ng=ctx.createGain();ng.gain.value=o.vn;ng.connect(master);
+ P.forEach(p=>{if(!bufs[p.i])return;const s=ctx.createBufferSource();s.buffer=bufs[p.i];s.connect(ng);s.start(t0+p.W0+LEAD)});
+ if(!o.cine)return;
+ const total=P[P.length-1].W0+P[P.length-1].w,NB=noiseBuf(ctx);
+ const mus=ctx.createGain();mus.gain.value=o.vm;mus.connect(master);const sfx=ctx.createGain();sfx.gain.value=o.vs;sfx.connect(master);
+ if(musicBuf){const s=ctx.createBufferSource();s.buffer=musicBuf;s.loop=true;const g=ctx.createGain();g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(.9,t0+1);
+  P.forEach(p=>{const t=t0+p.W0;if(p.a>0){g.gain.setTargetAtTime(.25,t+LEAD-.15,.12);g.gain.setTargetAtTime(.9,t+LEAD+p.a+.1,.4)}});
+  g.gain.setTargetAtTime(.0001,t0+total-1.5,.4);s.connect(g);g.connect(mus);s.start(t0);s.stop(t0+total+.5)}
+ P.forEach((p,k)=>{const m=MOODS[p.mood]||MOODS.sakin,t=t0+p.W0,end=t+p.w;if(!musicBuf)musicScene(ctx,mus,NB,m,p,t,end);sfxScene(ctx,sfx,NB,m,p,t,end,k<P.length-1)})}
+/* ===== TUVAL: dikey/yatay kompozisyon + altyazı ===== */
+const tiny=document.createElement('canvas');tiny.width=32;tiny.height=18;const tg=tiny.getContext('2d');
+function wrap(g,txt,maxW){const w=String(txt).split(/\s+/),L=[];let cur='';w.forEach(x=>{const tr=cur?cur+' '+x:x;if(g.measureText(tr).width>maxW&&cur){L.push(cur);cur=x}else cur=tr});if(cur)L.push(cur);return L}
+function subChunk(p,u,per){if(!p||!p.a||u<LEAD||u>LEAD+p.a+.15)return '';const w=p.txt.split(/\s+/),ch=[];for(let i=0;i<w.length;i+=per)ch.push(w.slice(i,i+per).join(' '));const lens=ch.map(c=>c.length+2),tot=lens.reduce((a,b)=>a+b,0);const f=(u-LEAD)/p.a*tot;let acc=0;for(let i=0;i<ch.length;i++){acc+=lens[i];if(f<acc)return ch[i]}return ch[ch.length-1]}
+const SANS='-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+function drawFrame(g,P,k,u,T,total,src){src=src||V;const W=g.canvas.width,H=g.canvas.height,vert=H>W,p=P[k],sub=$('sub').checked;
+ g.fillStyle='#07080c';g.fillRect(0,0,W,H);g.textAlign='center';g.textBaseline='alphabetic';
+ if(vert){try{tg.drawImage(src,0,0,32,18);g.imageSmoothingEnabled=true;g.globalAlpha=.6;g.drawImage(tiny,-W*.7,0,W*2.4,H);g.globalAlpha=1}catch(e){}
+  const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'rgba(7,8,12,.6)');gr.addColorStop(.45,'rgba(7,8,12,.3)');gr.addColorStop(1,'rgba(7,8,12,.88)');g.fillStyle=gr;g.fillRect(0,0,W,H);
+  const vh=W*9/16,vy=600;try{g.drawImage(src,0,vy,W,vh)}catch(e){}
+  g.fillStyle='#d4ab62';g.fillRect(0,vy-4,W,4);g.fillRect(0,vy+vh,W,4);
+  g.font='800 38px '+SANS;g.fillText($('kust').value.toLocaleUpperCase('tr'),W/2,250);
+  g.fillStyle='#f3ecdc';g.font='700 84px Georgia,"Times New Roman",serif';wrap(g,$('kbas').value,W-120).slice(0,2).forEach((l,i)=>g.fillText(l,W/2,360+i*96));
+  if(sub){const s=subChunk(p,u,6);if(s){g.font='800 62px '+SANS;g.lineJoin='round';const y0=vy+vh+190;wrap(g,s,W-140).slice(0,3).forEach((l,i)=>{g.lineWidth=12;g.strokeStyle='rgba(0,0,0,.85)';g.strokeText(l,W/2,y0+i*80);g.fillStyle='#fff';g.fillText(l,W/2,y0+i*80)})}}
+  g.fillStyle='#b9b5a8';g.font='600 36px '+SANS;g.fillText($('imza').value,W/2,H-150);
+  g.fillStyle='rgba(255,255,255,.15)';g.fillRect(90,H-100,W-180,6);g.fillStyle='#d4ab62';g.fillRect(90,H-100,(W-180)*Math.min(1,T/(total||1)),6);
+ }else{try{g.drawImage(src,0,0,W,H)}catch(e){}
+  if(sub){const s=subChunk(p,u,10);if(s){g.font='700 30px '+SANS;const L=wrap(g,s,W-320).slice(0,2),bh=L.length*40+26,by=H-60-bh;g.fillStyle='rgba(6,7,10,.75)';g.fillRect(140,by,W-280,bh);g.fillStyle='#fff';L.forEach((l,i)=>g.fillText(l,W/2,by+42+i*40))}}}}
+/* önizleme kartı */
+const pvc=document.createElement('canvas');
+function onizle(){const v=$('fmt').value=='v',c=$('cvp');pvc.width=v?1080:1280;pvc.height=v?1920:720;c.width=v?270:480;c.height=v?480:270;c.style.maxWidth=v?'60%':'100%';
+ const S=scenes(),x=S[Math.min(3,S.length-1)]||{txt:'Altyazı burada görünür',s:0};drawFrame(pvc.getContext('2d'),[{txt:x.txt,a:6}],0,LEAD+1,.4,1);c.getContext('2d').drawImage(pvc,0,0,c.width,c.height)}
+['fmt','sub','kust','kbas','imza'].forEach(i=>{$(i).addEventListener('input',onizle);$(i).addEventListener('change',onizle)});
+V.addEventListener('loadeddata',()=>{try{V.currentTime=Math.min(22,V.duration/2)}catch(e){}});V.addEventListener('seeked',()=>{if(!window.__recording)onizle()});
+$('hazir').onchange=()=>{const h=HAZIR[$('hazir').value];$('lines').value=h.lines;$('kust').value=h.ust;$('kbas').value=h.bas;$('fmt').value=h.fmt;$('sub').checked=h.fmt=='v';bufs=[];cacheKey=[];onizle();log('Hazır metin yüklendi. Uygun videoyu seçmeyi unutma.','wn')};
+$('mf').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const c=AC();musicBuf=await decode(c,await f.arrayBuffer());try{c.close()}catch(x){}$('mfx').style.display='';log('Kendi müziğin yüklendi: '+f.name+' ('+musicBuf.duration.toFixed(0)+' sn, döngüde çalar)','ok')}catch(x){log('Müzik dosyası açılamadı','er')}};
+$('mfx').onclick=()=>{musicBuf=null;$('mf').value='';$('mfx').style.display='none';log('Kendi müziğin kaldırıldı, hazır müziklere dönüldü.','wn')};
+$('mtest').onclick=async()=>{const ctx=AC();await ctx.resume();const mv=$('mood').value=='oto'?'gerilim':$('mood').value;const m=master(ctx,ctx.destination,false);schedule(ctx,m,[{i:-1,a:0,w:8,W0:0,mood:mv,txt:''}],ctx.currentTime+.1,Object.assign(opts(),{cine:true}));log('🎧 '+(musicBuf?'Kendi müziğin':MOODS[mv].ad)+' çalıyor (8 sn)…');setTimeout(()=>{try{ctx.close()}catch(e){}},8600)};
+setTimeout(onizle,50);
+
+function opts(){return{cine:$('cine').checked||!!musicBuf,vm:$('vm').value/100*1.4,vs:$('vs').value/100*1.0,vn:$('vn').value/100*1.0}}
 function master(ctx,dest,toSpeaker){const m=ctx.createGain(),c=ctx.createDynamicsCompressor();c.threshold.value=-18;c.ratio.value=3.5;c.attack.value=.01;c.release.value=.25;m.gain.value=.9;m.connect(c);c.connect(dest);if(toSpeaker)c.connect(ctx.destination);return m}
 /* ---------- gerçek zamanlı çalma / kayıt ---------- */
 async function runRT(record){
   const P=plan(),S=scenes();const total=P[P.length-1].W0+P[P.length-1].w;
   const ctx=AC();await ctx.resume();const dest=ctx.createMediaStreamDestination();
   const m=master(ctx,dest,!record);const t0=ctx.currentTime+.7;schedule(ctx,m,P,t0,opts());
-  const cv=$('cv'),g=cv.getContext('2d');let rec,chunks=[],mt='';
+  const cv=$('cv'),g=cv.getContext('2d');const vert=$('fmt').value=='v';cv.width=vert?1080:1280;cv.height=vert?1920:720;cv.style.display='block';V.style.display='none';let rec,chunks=[],mt='',kNow=0,uNow=0;
   if(record){
     const cs=cv.captureStream?cv.captureStream(30):null;if(!cs)throw new Error('Bu tarayıcı tuvalden kayıt desteklemiyor, ④ yedek yolu kullan');
     const ms=new MediaStream([...cs.getVideoTracks(),...dest.stream.getAudioTracks()]);
@@ -250,15 +338,15 @@ async function runRT(record){
       if(T>=total){res();return}
       if(T>=0){let k=P.findIndex(p=>T>=p.W0&&T<p.W0+p.w);if(k<0)k=P.length-1;const p=P[k],u=T-p.W0;
         $('pr').style.width=(T/total*100)+'%';
-        const aEnd=p.d-p.fade;let want,np;
+        kNow=k;uNow=u;const aEnd=p.d-p.fade;let want,np;
         if(u<aEnd){np='A';want=p.s+u}else if(u<p.hold){np='H';want=p.s+aEnd}else{np='B';want=p.s+aEnd+(u-p.hold)}
         if(k!==idx||np!==ph){
           if(np=='H'){V.pause();}else{if(k!==idx||ph=='H'){V.currentTime=want}V.play().catch(()=>{})}
           idx=k;ph=np}
         else if(np!='H'&&Math.abs(V.currentTime-want)>.35){V.currentTime=want}}
-      try{g.drawImage(V,0,0,1280,720)}catch(e){}
+      drawFrame(g,P,kNow,uNow,Math.max(0,T),total);
       requestAnimationFrame(tick)};tick()});
-  V.pause();$('pr').style.width='100%';
+  V.pause();V.style.display='';$('pr').style.width='100%';
   if(!record){ctx.close();return null}
   const done=new Promise(r=>rec.onstop=r);rec.stop();await done;ctx.close();
   return new Blob(chunks,{type:(rec.mimeType||mt||'video/webm').split(';')[0]})}
@@ -288,7 +376,7 @@ $('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);l
 /* tema bilgisi (sahne sırasına göre) */
 theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
 /* ===== ZİRVE KATMANI ===== */
-const APP={surum:"2.3",tarih:"2026-11-19",satir:353,kb:52.5,onceki:{surum:"2.2",satir:352,kb:51.9},yenilikler:["401 teşhisi: anahtarın türü/uzunluğu gösterilir, türü bilinmeyen anahtar iki servisle denenir","Anahtar sağlık testi + kopyala/yapıştır","Ekran modu (tahta uyumu), QR paylaşım, karşılama rehberi","Sürüm rozeti ve modül öz-kontrolü","Chrome için uyanık-tut ve sekme uyarısı","Ana ekrana eklenebilir ikon (PWA)"]};
+const APP={surum:"2.5",tarih:"2026-11-19",satir:441,kb:66.3,onceki:{surum:"2.4",satir:435,kb:65.3},yenilikler:["George sesi önerilen varsayılan; \"Hesabımdaki sesleri getir\" düğmesi","İmza: site adresi; köşe yazısı açılışı sadeleştirildi","Fon müziği seçimi: Gerilim, Korku, Duygusal, Umut, Aksiyon, Haber, Sakin + Otomatik (metne göre)","Sahne başına müzik etiketi: [korku] gibi","Kendi telifsiz müziğini ekleme (konuşurken otomatik kısılır)","Dikey 9:16 WhatsApp durumu biçimi: başlık, imza, ilerleme çubuğu","Gömülü altyazı","Konuşma hızı ayarı","Hazır metin: Köşe Yazısı 1 · Cebimizdeki Hesap"]};
 const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
 const SITE_URL="https://baris-ogretmen.github.io/site-1/";
 const ZIRVE=window.ZIRVE={};
@@ -325,7 +413,7 @@ ZIRVE.paylasAc=async function(){const u=location.href;$('qm').style.display='fle
 $('qb').onclick=ZIRVE.paylasAc;$('qx').onclick=()=>$('qm').style.display='none';$('ql').onclick=()=>navigator.clipboard.writeText(location.href).then(()=>toast('Link kopyalandı'));
 $('qd').onclick=()=>{const i=$('qi').querySelector('img');if(!i)return;const a=document.createElement('a');a.href=i.src;a.download='qr.png';a.click()};
 /* karşılama */
-const KARSILAMA={baslik:'🎙️ Sinematik Seslendirici',ozet:'Sessiz videonu gerçekçi yapay zekâ sesi ve sinematik müzikle sesli videoya çevirir.',adimlar:['Önce <b>ElevenLabs</b> ya da <b>Gemini</b> API anahtarını (birden fazla olabilir) 2. kutuya yapıştır.','Videonu seç, sahne metinlerini kontrol et, <b>Ses dene</b> ile sesi dinle.','<b>① Sesleri üret</b> → <b>② Önizle</b> → <b>③ Sesli videoyu kaydet</b> (kayıt sırasında sekmeyi değiştirme).','Kayıt tutmazsa <b>④</b> ile WAV + plan indirip bana gönder.']};
+const KARSILAMA={baslik:'🎙️ Sinematik Seslendirici',ozet:'Sessiz videonu gerçekçi yapay zekâ sesi ve sinematik müzikle sesli videoya çevirir.',adimlar:['<b>Hazır metin</b>den köşe yazını seç, <b>Müzik havası</b>nı ve <b>Dikey (WhatsApp)</b> biçimini belirle.','Önce <b>ElevenLabs</b> ya da <b>Gemini</b> API anahtarını (birden fazla olabilir) 2. kutuya yapıştır.','Videonu seç, sahne metinlerini kontrol et, <b>Ses dene</b> ile sesi dinle.','<b>① Sesleri üret</b> → <b>② Önizle</b> → <b>③ Sesli videoyu kaydet</b> (kayıt sırasında sekmeyi değiştirme).','Kayıt tutmazsa <b>④</b> ile WAV + plan indirip bana gönder.']};
 ZIRVE.karsilamaAc=function(){$('ht').textContent=KARSILAMA.baslik;$('hs').textContent=KARSILAMA.ozet;$('hl').innerHTML=KARSILAMA.adimlar.map(x=>'<li>'+x+'</li>').join('');$('hm').style.display='flex'};
 $('hb').onclick=ZIRVE.karsilamaAc;$('hx').onclick=()=>{$('hm').style.display='none';try{localStorage.setItem('zirve_karsilama_goruldu','1')}catch(e){}};
 try{if(!localStorage.getItem('zirve_karsilama_goruldu')&&!MOCK)setTimeout(ZIRVE.karsilamaAc,500)}catch(e){}
@@ -339,7 +427,7 @@ const _rt=runRT;runRT=async function(r){window.__recording=!!r;if(r)await uyanik
 try{const m={name:'Sinematik Seslendirici',short_name:'Seslendirici',display:'standalone',background_color:'#0b0d12',theme_color:'#0b0d12',start_url:location.href.split('#')[0],icons:[{src:'data:image/png;base64,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',sizes:'192x192',type:'image/png'},{src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAO6ElEQVR4Xu3dy5IkVQHH4Soj1y5cCO4EwwgXXIwe5oIrQ9gKWy89+gLCTnwGYQe+gJdBt8AWDFeK0zOEDTyQMRa2Y091dWaek3my8v99S6hLZlbm+eXJyerafv0b39sAkOdreasMwCMCABBKAABCCQBAKAEACCUAAKEEACCUAACEEgCAUAIAEEoAAEIJAEAoAQAIJQAAoQQAIJQAAIQSAIBQ3TZ0xQHSmQEAhBIAgFACABBKAABCCQBAqG7jNiCASGYAAKG6jSkAQCQzAIBQAgAQSgAAQgkAQCgBAAglAAChBAAglAAAhPKDMAChzAAAQgkAQCgBAAglAAChBAAglAAAhBIAgFACABBKAABCCQBAKAEACNX5TXiATGYAAKEEACCUAACEEgCAUN3WvwIDRDIDAAglAAChBAAglAAAhBIAgFACABBKAABCCQBAKAEACCUAAKEEACCUAACEEgCAUAIAEEoAAEIJAECobhu64gDpOj8IBpDJJSCAUAIAEEoAAEIJAEAoAQAIJQAAobqN+0ABIpkBAIQSAIBQAgAQSgAAQgkAQCgBAAglAAChBAAglB+EAQhlBgAQSgAAQgkAQCgBAAglAAChBAAglAAAhOr8HgxAJjMAgFACABBKAABCCQBAKAEACCUAAKEEACCUAACE6ra+CQYQyQwAIJQAAIQSAIBQAgAQSgAAQgkAQCgBAAglAAChBAAglAAAhBIAgFACABBKAABCdf4YKECmLnO15/G3392a541++Kv787zRVaxpdT5TZuASEECobhu64quS8yFa0/XJ+UwXyAwAIJQAAIQSAIBQAgAQSgAAQgkAQCgBAAjVbdyGuwY591Jb0/XJ+UwXxwwAIJQAAIQSAIBQAgAQSgAAQgkAQCgBAAglAACh/CDMGuR8kcaark/OZ7pAZgAAobbffOr50FUHyNaZgAFkcgkIIJQAAIQSAIBQAgAQSgAAQgkAQCgBAAglAAChBAAgVBe63q399b2brRcBluVHb5wta4ECbL/5tL8FNBODPvQkBvMQgMkZ92E0JZiUAEzFuA8VKcEUtk89/cIUrxvuk/deCt8CUN0rbzyo/prhBKAyQz9MSgYqchtoTUZ/mJqjrCIzgDrslDAzU4FyZgAVGP1hfo67cgJQyl4IrTj6CglAEfsftOUYLCEA49nzYAkciaMJwEj2OVgOx+M426e+5Ytgg33yru95weK88qZvig3jr4E2Y2eFC06qmjADGKxwTzXuwwGOrzkJwDAle6ehH3pyoM3DJaA5GPphkN0hU5IB+nAX0ADjdkejP4wz7tgZd5xmcgmorxF71bjdF7jE0TcRM4CpGP2hFkfTRLrtRC8cz4at6MuHf3ny1Z678ZOKb8HKOAD72D7ti2A9fDzwm1+v+kJKJXuH/sfJQA6HYXUuAdVn9K/l2tF/s+n1GNbBkVWd20BZoj5D/4Xdg00FYCgzgOsNmng6SYHpDDq+Bh25mQSAxRl0+n9pHgD0JwA1DTo9Ya9xo/9OyXM5Fo6yigQAIJQAXMNlxDmVn8KXvwJr4vg9rNv4wkQlr7750MZcBt8BWrlX33z48bs3eq+k/eFKZgAAoQQAIJQAAIQSAIBQAgAQSgAAQnVukarGzWYL4YPgcfaHq/lBmGrsZgvhg8D435NLQAChBAAglB+EAb7yxYM/P7ktnn/pp0/+R9ZBAID9Q//OrgoysEouAUG6vSf+l/R5DEfHDAByDRrWTQXWxwwAIJQAQKhBp/8Xxj2LZRIASFQyjpc8l0URAIBQAgBxyk/hy1+BJRAAgFBuA2WAtG+Kpq0vaQSAXg5M+Vd5e3ja+pLJJSCu1+eCb5/HHIs+69LnMbBwZgAcMmiYW8FUIG19Cddt/X5GJbbkTvPtMPMCzPx2y3EsK34sy9mES0Bc6fMH74/YOuOetQTjlnzcs2AJBID9Ssa1kue2UrLMJc+FhgQAIJQAsEf5KW35K8ypfGnLXwHm1/k34Gq21V5pJVptkLT3baXVdh7qWJazBTMAgFACABBKAABCCQBAKAEACOVvAQGNfX625zvnL9z8WePFCiAAQDN7h/6d3f+SgUm5BAS0cWD0v9DnMYxmBgDMbdCwbiowHTMAgFACAMxq0On/hXHP4rDO38moxZa8pNUGSXvfVsZt5/N9N/z09PnZ+y8OvzVo3HKGMAMACCUAwExKTv93yl+BxwkAQCi3gcLi7D3PHXH5Gw4TAFiQA5c4dv9LBqjIJSBYij4XuPs8BnoyA4D2Bg3rpgLUYgYAEKrb+J5ENfN94+T87N6TS/3izZ9XW5U65tsg/+/I3nfvp3mt80ffimr7iR/Ldm61nEfADODInJ/du2q8OPC/WKxxo/9OyXNhs9l06ljN9OcZ5/f3nPhfcn5278VbbU8M/2v6DbJf1Pu2WtlNu2sHQ1d56OOTmAEch/P79/qM/l+dGA55MA31/0yvUv4KJBMAgFACcATGneWNexaQQwCWrmQcL3kusHoCABDKD8JUM8W9Bv/qcdvPYef3732/0U1BU2yQPrzvPI5lO7dazqNgBgAQSgAAQgkAQCgBAAglAAChBAAglAAAhBIAgFACABBKAABCCQBAKAEACCUAAKEEACCUAACEEgCAUN126/cS6ljslmy1YN53HrbzYa22z1EwAwAIJQAAoQQAIJQAAIQSAIBQAgAQSgAAQgkAQCgBAAglAAChBAAglAAAhBIAgFACABBKAABCCQBAKAEACNX5PbBaptiSJ7dPP/vnn0qW8OT26RQL1of3nYftfFir7XMUzAAAQgnA0p3cPh29iCXPBVZPAI7AuHF83LOAHAIAEEoAjsPJ7dP+Z/SDHkxD/T/Tq5S/Ask6/0ZezfR3G5zcOf3s02tuCjq5czrDkvQy/QbZL+p9W63sZtPsrYeu8tDHJzEDODInd04fDfH7HPhfLNZVn2YfJc+FzWbTtev4+sx3pnFy5+6+zTffAvTTanmO7H1P7tz97NM/9tuk//OffaDVmu60eveh7zv08UHMAABCdaHrDUuym9L1nAdcMf+DwcwAYCn6jOx9HgM9mQHAghyYChj6qU4AYHGM9czDJSCAUAIAzKR8ZlP+CjxOAABC+UGYanzb5JJWGyTtfVsZt51v3Ln7cPi33nZu3Lk74k1HPCWHGQAwqxv7v8d+jXHP4jABAAjlNlBgbrvT+Z7Xgpz7T8cMAGijz8je5zGMZgYANHNgKmDon4EAAI0Z61txCQgglAAAhBIAgFACABBKAABCdf5SRjX+5sglrTZI2vu20mo7D3Usy9mCGQB73Hj50Rc1S5S/wpzKl7b8FWB+AgAQSgDYr+SUtuS5rZQsc8lzoSEB4ErjxrVxz1qCcUs+7lmwBN3WP5FUYkvuNN8OMy/AzG+3HMey4seynE34W0Ac8tLLv9hsNg/+8Yc+m2n34KOWtr6EcwmI6/UZ2fs85lj0WZc+j4GFMwOglwOnxqscCtPWl0wCwACrHOsPSFtf0rgEBBBKACBO+cym/BVYAgEACCUAkKjkFL7kuSyKAECoceP4uGexTAIAEMptoJDLN5/DmQFAuj5Xdfo8hqNjBgD45nMoAQC+4jQ/jUtAAKEEACBUtw1d8fpsyYXwQfA4+8MBnc1TjR1tIXwQKEA/LgEBhBIAgFACABBKAABCCQBAKAEACNVt3DRXyUfvvPDjX39R6cUo4T7QlfvoneeHrKH94UpmANcwps/p5g9+Wfh25a/Amjh+DxMAgFACUNPAmSl7lJzClzyXY+Eoq0gAWJxx4/i4Z0EyAbjeoMuITk9gOoOOr0FHbiY/CMMS7U7nz/7++z4L59wfxjEDqG/QSQoH9BnZ+zyGdXBkVbd95ts3q7/oKg3d+Uw/K9o7FTD0R3EATsEPwkzFl08qurXv+wG2MAfYPfpwCWgqHw77siJwJUfTRLbPugTU27i98DV/HwLGctBNygxggHFD+bg9GBh37Iw7TjO5DXQOu/3Yfgk9jRv6GcoloMEKd00ZgAMcX3MSgDEK99EdJYALjqkmXAJqpsoeDzDa9tlnfBFsjA/fHvSTFMC0XnvLzzEN5i6gkextsByOx3EEYDz7HCyBI3E0AShiz4O2HIMlBKCU/Q9acfQVEoAK7IUwP8ddOXcB1eTWIJiBob8WM4Ca7JcwNUdZRWYAkzAVgOoM/dVtv/PMreovymaz+eDt52wHqOX1t76s9VJcEIDJKQGMZtyflADMRwmgJ+P+PASgDTGASwz68xMAgFBuAwUIJQAAoQQAIJQAAIQSAIBQAgAQSgAAQgkAQCgBAAjVbbahaw4Qrgtf/0l98NuZ/iL0679p/JdyrWl1PlNm4BIQQKjOFaAVyPkQren65HymC2QGABBKAABCCQBAKAEACCUAAKEEACCUAACE6jZuw12DnHupren65Hymi2MGABBKAABCCQBAKAEACCUAAKEEACCUAACEEgCAUH4QZg1yvkhjTdcn5zNdIDMAgFDb7z57O3TVAbJ1JmAAmVwCAgglAAChBAAglAAAhBIAgFACABBKAABCCQBAKAEACCUAAKEEACCUAACEEgCAUN3WnwMFiGQGABBKAABCCQBAKAEACCUAAKEEACCUAACEEgCAUJ3vgQFkMgMACCUAAKEEACCUAACEEgCAUAIAEEoAAEJ129AVB0hnBgAQSgAAQgkAQCgBAAglAAChBAAglAAAhBIAgFDdxi/CAEQyAwAIJQAAoQQAIJQAAIQSAIBQAgAQqnMXKEAmPwgDEMolIIBQAgAQSgAAQgkAQCgBAAglAAChBAAglAAAhBIAgFACABBKAABCCQBAKAEACCUAAKEEACCUAACE6rZ+EgwgkhkAQCgBAAglAAChBAAgVOffgAEymQEAhBIAgFACABBKAABCCQBAKAEACCUAAKEEACCUAACEEgCAUAIAEKrbhq44QDozAIBQAgAQSgAAQgkAQCgBAAglAAChBAAglAAAhOo2fhUeIJIZAECozgQAIJMZAEAoAQAIJQAAoQQAIJQAAITygzAAocwAAEIJAEAoAQAIJQAAoQQAIJQAAIQSAIBQAgAQSgAAQgkAQCgBAAglAAChBAAglAAAhBIAgFACABDq3/lcQ5uT/WLjAAAAAElFTkSuQmCC',sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
  const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));document.head.append(l)}catch(e){}
 /* sürüm rozeti + öz-kontrol */
-const MODULLER=['tts','plan','schedule','runRT','showResult','wav16','toast','scenes','keyList'];
+const MODULLER=['tts','plan','schedule','musicScene','autoMood','drawFrame','runRT','showResult','wav16','toast','scenes','keyList'];
 function kontrol(){return MODULLER.map(n=>{let ok=false;try{ok=typeof eval(n)==='function'}catch(e){}return[n,ok]})}
 (function(){const k=kontrol(),iyi=k.filter(x=>x[1]).length,vb=$('vb'),b=$('bn');let g='';try{g=localStorage.getItem('zirve_surum')||''}catch(e){}
  vb.textContent='v'+APP.surum+(iyi==k.length?' ✓':' ⚠');
