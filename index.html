@@ -126,7 +126,7 @@ function scenes(){const a=[];$('lines').value.split('\n').map(x=>x.trim()).filte
 let bufs=[],cacheKey=[],theme=[];
 const AC=()=>new (window.AudioContext||window.webkitAudioContext)();
 /* ---------- TTS ---------- */
-function allKeys(){return [...new Set($('keys').value.split(/[\n,;\s]+/).map(x=>x.trim()).filter(Boolean))]}
+function allKeys(){return [...new Set($('keys').value.split(/[\n,;\s]+/).map(x=>x.trim().replace(/^["'“”‘’`]+|["'“”‘’`,;]+$/g,'')).filter(Boolean))]}
 function kType(k){return /^AIza/.test(k)?'gemini':(/^sk_/.test(k)||/^[a-f0-9]{32}$/i.test(k))?'eleven':null}
 function keyList(eng){eng=eng||$('eng').value;return allKeys().filter(k=>{const t=kType(k);return !t||t==eng})}
 async function gemModels(key){try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(key));if(!r.ok)return[];const j=await r.json();return (j.models||[]).filter(m=>/tts/i.test(m.name)&&(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''))}catch(e){return[]}}
@@ -163,7 +163,8 @@ async function tts(ctx,txt){
     let msg='HTTP '+r.status;try{const t=await r.text();try{const jj=JSON.parse(t);msg=(jj.detail&&(jj.detail.message||jj.detail.status))||(jj.error&&jj.error.message)||t.slice(0,200)}catch(e){msg=t.slice(0,200)}}catch(e){}
     if(eng=='gemini'&&r.status==404&&!tts.disc){tts.disc=1;const ms=await gemModels(key);if(ms.length){$('model').innerHTML=ms.map(m=>'<option>'+m+'</option>').join('');model=ms[0];log('Model güncellendi: '+model,'wn');continue}}
     if(eng=='eleven'&&(r.status==404||r.status==402||/voice/i.test(msg))&&!tts.vdisc){tts.vdisc=1;try{const vr=await fetch('https://api.elevenlabs.io/v1/voices?page_size=100',{headers:{'xi-api-key':key}});if(vr.ok){const vj=await vr.json(),vs=(vj.voices||[]);if(vs.length){vs.sort((x,y)=>(/tr/i.test(JSON.stringify(y.labels||{}))|0)-(/tr/i.test(JSON.stringify(x.labels||{}))|0));$('voice').innerHTML=vs.map(v=>'<option value="'+v.voice_id+'">'+v.name+' (hesabın)</option>').join('');$('cvoice').value='';log('Seçili ses hesabında yok/ücretli; hesabındaki seslerden "'+vs[0].name+'" kullanılıyor. Listeden değiştirebilirsin.','wn');continue}}}catch(e){}}
-    msg=trErr(r.status,msg);lastErr=msg;
+    if(r.status==401&&eng=='eleven'&&!kType(key)&&!tts.alt){tts.alt=1;try{const g=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));if(g.ok){$('eng').value='gemini';fillEng();log('Bu anahtar ElevenLabs değil, Gemini çıktı; Gemini motoruna geçildi','wn');tts.alt=0;return await tts(ctx,txt)}}catch(e){}tts.alt=0}
+    lastErr=msg+' [anahtar '+key.slice(0,5)+'…'+key.slice(-3)+', '+key.length+' karakter, tür: '+(kType(key)||'bilinmiyor')+']';
     if(r.status==401||r.status==403||r.status==402)bad.add(key);
     if(r.status==401||r.status==402||r.status==403||r.status==429||/quota|limit|credit/i.test(msg)){
       if(keys.length>1){kIdx++;log('  anahtar değiştirildi ('+r.status+')','wn');await sleep(800);continue}
@@ -287,7 +288,7 @@ $('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);l
 /* tema bilgisi (sahne sırasına göre) */
 theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
 /* ===== ZİRVE KATMANI ===== */
-const APP={surum:"2.2",tarih:"2026-11-19",satir:352,kb:51.9,onceki:{surum:"2.1",satir:344,kb:49.7},yenilikler:["Anahtar türü otomatik algılanır (Gemini AIza… / ElevenLabs sk_…), 401 düzeltildi","Ses/model bulunamazsa hesaptan otomatik seçim","Anahtar sağlık testi + kopyala/yapıştır","Ekran modu (tahta uyumu), QR paylaşım, karşılama rehberi","Sürüm rozeti ve modül öz-kontrolü","Chrome için uyanık-tut ve sekme uyarısı","Ana ekrana eklenebilir ikon (PWA)"]};
+const APP={surum:"2.3",tarih:"2026-11-19",satir:353,kb:52.5,onceki:{surum:"2.2",satir:352,kb:51.9},yenilikler:["401 teşhisi: anahtarın türü/uzunluğu gösterilir, türü bilinmeyen anahtar iki servisle denenir","Anahtar sağlık testi + kopyala/yapıştır","Ekran modu (tahta uyumu), QR paylaşım, karşılama rehberi","Sürüm rozeti ve modül öz-kontrolü","Chrome için uyanık-tut ve sekme uyarısı","Ana ekrana eklenebilir ikon (PWA)"]};
 const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
 const SITE_URL="https://baris-ogretmen.github.io/site-1/";
 const ZIRVE=window.ZIRVE={};
@@ -345,7 +346,7 @@ function kontrol(){return MODULLER.map(n=>{let ok=false;try{ok=typeof eval(n)===
  b.style.display='block';b.innerHTML=g&&g!==APP.surum||!g?('🆕 v'+APP.onceki.surum+' → v'+APP.surum+' · Kod: '+APP.onceki.satir+' → '+APP.satir+' satır · 🧪 '+iyi+'/'+k.length+' modül sağlam'):('✅ v'+APP.surum+' · en güncel sürüm');
  setTimeout(()=>b.style.display='none',9000);try{localStorage.setItem('zirve_surum',APP.surum)}catch(e){}
  vb.onclick=()=>{$('vd').innerHTML='<p>Önceki: '+APP.onceki.satir+' satır / '+APP.onceki.kb+' KB<br>Şimdiki: '+APP.satir+' satır / '+APP.kb+' KB</p><ul>'+APP.yenilikler.map(x=>'<li>'+x+'</li>').join('')+'</ul><p>Modüller:<br>'+kontrol().map(x=>(x[1]?'✅ ':'❌ ')+x[0]).join('<br>')+'</p>';$('vm2').style.display='flex'};$('vx').onclick=()=>$('vm2').style.display='none'})();
-function trErr(st,m){const l=String(m).toLowerCase();if(st==401)return 'Anahtar reddedildi (401): '+m+' — ElevenLabs anahtarında "Text to Speech" izni açık olmalı';if(st==402)return 'Bu ses/plan için ücretli plan gerekiyor (402)';if(st==403)return 'İzin yok (403): anahtar bu işlem için yetkili değil';if(st==404)return 'Ses veya model bulunamadı (404): başka ses/model seç';if(st==429||/quota|limit|credit/.test(l))return 'Kota doldu ('+st+'). Başka anahtar ekle';if(st==400)return 'Geçersiz istek (400): '+m;return m}
+function trErr(st,m){const l=String(m).toLowerCase();if(st==401)return 'Anahtar reddedildi (401): '+m+(/permission/i.test(l)?' — anahtarda "Text to Speech" izni açık olmalı':' — servis bu anahtarı tanımıyor: eksik/fazla karakter, yanlış servis ya da silinmiş/yenilenmiş anahtar olabilir');if(st==402)return 'Bu ses/plan için ücretli plan gerekiyor (402)';if(st==403)return 'İzin yok (403): anahtar bu işlem için yetkili değil';if(st==404)return 'Ses veya model bulunamadı (404): başka ses/model seç';if(st==429||/quota|limit|credit/.test(l))return 'Kota doldu ('+st+'). Başka anahtar ekle';if(st==400)return 'Geçersiz istek (400): '+m;return m}
 
 </script>
 </body>
