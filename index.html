@@ -156,7 +156,7 @@ $('vfetch').onclick=()=>sesleriGetir(false);
 $('keys').addEventListener('change',()=>{saveKeys();if(keyList('eleven').length&&$('eng').value=='eleven')sesleriGetir(true)});
 $('voice').addEventListener('change',()=>{try{localStorage.setItem('ses_secim',$('voice').value)}catch(e){}});
 setTimeout(()=>{const ak=allKeys();if(ak.length&&!keyList('eleven').length&&kType(ak[0])=='gemini'){$('eng').value='gemini';fillEng()}if(keyList('eleven').length)sesleriGetir(true);try{const s=localStorage.getItem('ses_secim');if(s&&[...$('voice').options].some(x=>x.value==s))$('voice').value=s}catch(e){}},100);
-$('go').onclick=async()=>{$('go').disabled=true;try{await $('b1').onclick();if(!$('b3').disabled)await $('b3').onclick()}finally{$('go').disabled=false}};
+$('go').onclick=async()=>{$('go').disabled=true;window.__out=null;try{await $('b1').onclick();if(!$('b3').disabled){await $('b3').onclick();if(!window.__out){log('Kayıt alınamadı; yedek ses paketi indiriliyor, bana gönder, birleştireyim.','wn');await $('b4').onclick()}}}finally{$('go').disabled=false}};
 try{$('keys').value=[...new Set(['keys_all','keys_eleven','keys_gemini'].flatMap(k=>(localStorage.getItem(k)||'').split(/[\n,;\s]+/)).filter(Boolean))].join('\n')}catch(e){}
 ['vm','vs','vn','hiz'].forEach(i=>$(i).oninput=()=>$(i+'v').textContent=$(i).value);
 const V=$('v');
@@ -334,9 +334,9 @@ async function runRT(record){
   if(record){
     const cs=cv.captureStream?cv.captureStream(30):null;if(!cs)throw new Error('Bu tarayıcı tuvalden kayıt desteklemiyor, ④ yedek yolu kullan');
     const ms=new MediaStream([...cs.getVideoTracks(),...dest.stream.getAudioTracks()]);
-    mt=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
+    mt=['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
     if(!window.MediaRecorder)throw new Error('MediaRecorder yok, ④ yedek yolu kullan');
-    rec=new MediaRecorder(ms,mt?{mimeType:mt,videoBitsPerSecond:5000000}:{});rec.ondataavailable=e=>e.data&&e.data.size&&chunks.push(e.data);rec.start(1000)}
+    const ro={videoBitsPerSecond:vert?8000000:6000000,audioBitsPerSecond:192000};if(mt)ro.mimeType=mt;rec=new MediaRecorder(ms,ro);rec.ondataavailable=e=>e.data&&e.data.size&&chunks.push(e.data);rec.onerror=e=>log('Kayıt hatası: '+((e.error&&e.error.message)||e.name||'?'),'er');rec.start(1000)}
   V.muted=true;V.playsInline=true;
   let idx=-1,ph='';const sc0=P[0];await seekV(sc0.s);
   await new Promise(res=>{
@@ -354,13 +354,13 @@ async function runRT(record){
       requestAnimationFrame(tick)};tick()});
   V.pause();V.style.display='';$('cv').style.display='none';$('pr').style.width='100%';
   if(!record){ctx.close();return null}
-  const done=new Promise(r=>rec.onstop=r);rec.stop();await done;ctx.close();
+  log('Video hazırlanıyor…');const done=new Promise(r=>{rec.onstop=r;setTimeout(r,5000)});try{rec.requestData()}catch(e){}try{rec.stop()}catch(e){}await done;if(!chunks.length)await sleep(2000);try{ctx.close()}catch(e){}if(!chunks.length)throw new Error('Telefon kaydı teslim etmedi');
   return new Blob(chunks,{type:(rec.mimeType||mt||'video/webm').split(';')[0]})}
 function seekV(t){return new Promise(r=>{const f=()=>{V.removeEventListener('seeked',f);r()};V.addEventListener('seeked',f);V.currentTime=Math.min(t,V.duration-.05)})}
 function showResult(blob){const ext=blob.type.includes('mp4')?'mp4':'webm',name='sesli-video.'+ext,url=URL.createObjectURL(blob);
   $('res').style.display='block';$('rv').src=url;const rb=$('rb');rb.innerHTML='';
-  const a=document.createElement('a');a.href=url;a.download=name;a.textContent='⬇ İndir ('+(blob.size/1048576).toFixed(1)+' MB)';a.style.cssText='display:inline-block;background:#d4ab62;color:#14110a;font-weight:800;padding:12px 18px;border-radius:999px;margin:8px 8px 0 0;text-decoration:none';rb.append(a);
-  if(navigator.canShare){try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare({files:[f]})){const b=document.createElement('button');b.textContent='📲 Paylaş / Videoyu Kaydet';b.onclick=()=>navigator.share({files:[f]}).catch(()=>{});rb.append(b)}}catch(e){}}
+  const a=document.createElement('a');a.href=url;a.download=name;$('res').scrollIntoView({behavior:'smooth'});a.textContent='⬇ İndir ('+(blob.size/1048576).toFixed(1)+' MB)';a.style.cssText='display:inline-block;background:#d4ab62;color:#14110a;font-weight:800;padding:12px 18px;border-radius:999px;margin:8px 8px 0 0;text-decoration:none';rb.append(a);
+  if(navigator.canShare){try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare({files:[f]})){const b=document.createElement('button');b.textContent='📲 Fotoğraflara kaydet / WhatsApp\'ta paylaş';b.style.cssText='width:100%;font-size:18px';b.onclick=()=>navigator.share({files:[f]}).catch(()=>{});rb.append(b)}}catch(e){}}
   window.__out={size:blob.size,type:blob.type,url}}
 $('b2').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);log('Önizleme başladı…');try{await runRT(false);log('Önizleme bitti.','ok')}catch(e){log('Hata: '+e.message,'er')}['b1','b2','b3','b4'].forEach(x=>$(x).disabled=false)};
 $('b3').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);log('Kayıt başladı. Bitene kadar ekranı açık tut…');
@@ -382,7 +382,7 @@ $('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);l
 /* tema bilgisi (sahne sırasına göre) */
 theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
 /* ===== ZİRVE KATMANI ===== */
-const APP={surum:"3.0",tarih:"2026-11-19",satir:454,kb:68.1,onceki:{surum:"2.5",satir:441,kb:66.3},yenilikler:["Sade arayüz: 5 adım + tek düğme; ayrıntılar Gelişmiş'te","Motor sesi gibi uğultu kaldırıldı; müzikler yumuşak piyano/pad","Önerilen sesler en üstte (⭐), hesabındaki sesler otomatik gelir","Yeni sürüm çıkınca kırmızı 'Yenile' uyarısı","Anahtar gizli görünür","Müzik yok seçeneği"]};
+const APP={surum:"3.1",tarih:"2026-11-19",satir:454,kb:68.7,onceki:{surum:"3.0",satir:454,kb:68.1},yenilikler:["iPhone'da kaydın bitmeyip takılması düzeltildi","Bitince 'Fotoğraflara kaydet / WhatsApp'ta paylaş' düğmesi","WhatsApp için yüksek kalite: 1080×1920, H.264, 8 Mbps, 192 kbps ses","Kayıt alınamazsa yedek paket otomatik iner"]};
 const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
 const SITE_URL="https://baris-ogretmen.github.io/site-1/";
 const ZIRVE=window.ZIRVE={};
