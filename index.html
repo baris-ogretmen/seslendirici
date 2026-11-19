@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seslendirici · Videoya yapay zekâ sesi</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0d12;color:#ece6d6;font-family:'Segoe UI',Arial,sans-serif;line-height:1.45}
+.w{max-width:980px;margin:0 auto;padding:22px 16px 60px}
+h1{font-family:Georgia,serif;font-size:34px;margin:6px 0 2px}h1 span{color:#d4ab62}
+.sub{color:#a9a597;margin-bottom:20px}
+.card{background:#12151c;border:1px solid #232834;border-radius:12px;padding:16px;margin:14px 0}
+.card h2{font-size:15px;letter-spacing:.08em;color:#d4ab62;margin:0 0 10px;text-transform:uppercase}
+label{display:block;font-size:13px;color:#a9a597;margin:10px 0 4px}
+input[type=text],input[type=password],select,textarea{width:100%;background:#0b0d12;color:#ece6d6;border:1px solid #2c3342;border-radius:8px;padding:10px;font:inherit}
+textarea{min-height:230px;font-size:13.5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.row{grid-template-columns:1fr}}
+button{background:#d4ab62;color:#14110a;border:0;font-weight:800;font-size:16px;padding:12px 22px;border-radius:999px;cursor:pointer;margin:6px 8px 0 0}
+button.g{background:#232834;color:#ece6d6}button:disabled{opacity:.45;cursor:default}
+video{width:100%;max-height:420px;background:#000;border-radius:8px;margin-top:10px}
+#log{white-space:pre-wrap;font-size:13px;color:#b9b5a8;max-height:220px;overflow:auto;background:#0b0d12;border-radius:8px;padding:10px;margin-top:10px}
+.bar{height:8px;background:#232834;border-radius:6px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;width:0;background:#d4ab62}
+small{color:#7d7a70}
+.ok{color:#8fd19e}.er{color:#ff8a8a}
+</style>
+</head>
+<body><div class="w">
+<h1>Sesli <span>Seslendirici</span></h1>
+<div class="sub">Videonu seç → metni yapay zekâ okusun → sahnelere oturtulmuş sesli videoyu indir.</div>
+
+<div class="card"><h2>1 · Video</h2>
+<input type="file" id="vf" accept="video/*">
+<video id="v" playsinline controls muted></video>
+<small>Videonun sesi yoksa ya da sessizse en iyisi. Ses, mevcut videonun üzerine eklenir.</small></div>
+
+<div class="card"><h2>2 · Ses motoru (Gemini)</h2>
+<div class="row"><div><label>Gemini API anahtarı</label><input type="password" id="key" placeholder="AIza..."></div>
+<div><label>Ses</label><select id="voice"><option>Charon</option><option>Kore</option><option>Fenrir</option><option>Orus</option><option>Puck</option><option>Aoede</option><option>Algenib</option><option>Alnilam</option></select></div></div>
+<div class="row"><div><label>Model</label><input type="text" id="model" value="gemini-2.5-flash-preview-tts"></div>
+<div><label>Okuma tarzı (Türkçe)</label><input type="text" id="style" value="Derin, sakin, ağırbaşlı bir belgesel anlatıcısı gibi, net ve yavaş oku:"></div></div>
+<label><input type="checkbox" id="rem"> Anahtarı bu tarayıcıda hatırla</label></div>
+
+<div class="card"><h2>3 · Sahne metinleri</h2>
+<small>Her satır: <b>başlangıç | okunacak metin</b> (örn. <b>1:25 | Metin…</b>). Bir sahne bir sonrakinin başlangıcında biter; son sahne videonun sonunda biter. Metni burada düzenleyebilirsin.</small>
+<textarea id="lines" spellcheck="false">0:00.0 | 2002'de bir vaatle başladı. Yirmi dört yıl sonra sloganları değil, açıklanmış rakamları konuşuyoruz. Önce hakkını verelim, sonra hesabı soralım.
+0:10.1 | Hakkını teslim edelim: köprüler, havalimanları, hastaneler ve savunma sanayisinde büyük yatırımlar yapıldı, ekonomi büyüdü. Mesele bu emeği inkâr etmek değil; bedelini ve bugünkü tabloyu sormak.
+0:22.8 | 2002'de bir dolar yaklaşık bir buçuk liraydı. Ekim 2026'da Merkez Bankası kuruyla yaklaşık kırk dokuz lira. Lira, dolar karşısında değerinin yüzde doksan yedisini yitirdi.
+0:35.0 | TÜİK'in açıkladığı yıllık enflasyon ekimde yüzde 29 virgül 77. Enflasyon Araştırma Grubu ENAG ise yüzde 45 hesaplıyor. Hangisi doğru olursa olsun, fiyatlar bir yılda yüzde otuz ile kırk beş arasında arttı.
+0:50.3 | 2026 asgari ücreti net 28 bin 75 lira. Türk-İş'in Ağustos hesabına göre dört kişilik bir ailenin yalnızca gıda harcaması 37 bin 388 lira; yoksulluk sınırı ise 121 bin 786 lira.
+1:05.1 | Freedom House'un 2026 raporunda Türkiye yüz üzerinden otuz iki puanla özgür değil. 2005'ten bu yana otuz üç puan kaybetti ve iki bin on sekizden beri, Freedom House'un Avrupa sınıflamasında bu statüdeki tek ülke. Adil yargılanma başlığında alabileceği en düşük not verildi.
+1:24.7 | Avrupa İnsan Hakları Mahkemesi, 2019'da Osman Kavala için, 2020'de Selahattin Demirtaş için tahliye kararı verdi. Türkiye uymadı; Avrupa Konseyi, Kavala dosyasında tarihinde nadir görülen ihlal prosedürünü başlattı.
+1:38.2 | Mart 2025'te muhalefetin cumhurbaşkanı adayı Ekrem İmamoğlu tutuklandı; dört yüzden fazla sanıklı dava sürüyor ve kendisi suçlamaları reddediyor. İki bin yirmi dörtten beri onlarca seçilmiş belediye başkanı görevden alındı; bianet'in derlemesine göre on üç belediyeye kayyum atandı.
+1:56.1 | Sınır Tanımayan Gazeteciler'in 2026 endeksinde Türkiye yüz seksen ülke arasında yüz altmış üçüncü; 2002'deki ilk endekste yüzüncü civarındaydı, o yıl yalnızca yüz otuz dokuz ülke vardı. Dezenformasyon ve cumhurbaşkanına hakaret maddeleri, gazetecilere karşı sık kullanılan araçlar arasında.
+2:14.0 | Transparency International'a göre Türkiye 2013'te elli puandı. İki bin yirmi beşte otuz bir puan ve yüz seksen iki ülke arasında yüz yirmi dördüncü. Dünya Adalet Projesi de hukukun üstünlüğünde yüz kırk üç ülke arasında yüz on sekizinci diyor.
+2:32.3 | 6 Şubat 2023'te resmî rakamlarla elli üç bin beş yüz otuz yedi insan hayatını kaybetti. 2018'de, genel seçimden yaklaşık altı hafta önce yasalaşan imar affına milyonlarca başvuru yapıldı. Müteahhitler yargılandı; aileler, kamu görevlilerinin yargılanmasının yavaş ilerlediğini söylüyor.
+2:50.2 | Bunlar bir partinin değil, bir yönetim biçiminin karnesi: kur, fiyat, ücret, yargı, basın, seçim ve deprem. Her biri ayrı tartışılabilir, ama hepsi aynı soruya çıkıyor. Yönetenler, yönetilenlere hesap veriyor mu?
+3:05.0 | Adil olalım: iktidar, enflasyonun zirvesinden düştüğünü, yatırımların sürdüğünü ve davaların bağımsız yargıda yürüdüğünü söylüyor; Adalet Bakanı da bu endeksi haksız bulmuştu. Bu savunma dinlenmeli, ama rakamların ve kararların yanında sınanmalı.
+3:19.8 | Muhalif de yandaş da aynı şeyi hak ediyor: bağımsız yargı, özgür basın, adil bir sandık ve doğru rakam. Bunları savunmak bir partiyi değil, hepimizin ortak evini savunmaktır. Hesap sormak bir hak; hesap vermek ise bir görevdir.
+3:37.3 | Kaynaklar ekranda. İzlediğiniz için teşekkürler.</textarea></div>
+
+<div class="card"><h2>4 · Üret ve kaydet</h2>
+<button id="b1">① Sesleri üret</button><button id="b2" class="g" disabled>② Önizle</button><button id="b3" disabled>③ Sesli videoyu kaydet</button>
+<div class="bar"><i id="pr"></i></div><div id="log"></div>
+<small>Kayıt gerçek zamanlı yapılır (video süresi kadar sürer); sekmeyi kapatma. Ses bir sahnenin süresinden uzunsa o sahnede video otomatik yavaşlar, senkron bozulmaz. Çıktı Chrome'da MP4, değilse WebM olur.</small></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const log=(m,c)=>{const d=$('log');d.innerHTML+=(c?'<span class="'+c+'">':'')+m.replace(/</g,'&lt;')+(c?'</span>':'')+'\n';d.scrollTop=1e9};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+try{const k=localStorage.getItem('gk');if(k){$('key').value=k;$('rem').checked=true}}catch(e){}
+const V=$('v');
+$('vf').onchange=e=>{const f=e.target.files[0];if(!f)return;V.src=URL.createObjectURL(f);V.onloadedmetadata=()=>log('Video yüklendi: '+V.duration.toFixed(1)+' sn','ok')};
+function parseT(s){s=s.trim();if(s.includes(':')){const p=s.split(':').map(parseFloat);return p.length==3?p[0]*3600+p[1]*60+p[2]:p[0]*60+p[1]}return parseFloat(s)}
+function scenes(){const L=$('lines').value.split('\n').map(x=>x.trim()).filter(Boolean);const a=[];
+  L.forEach(l=>{const i=l.indexOf('|');if(i<0)return;const t=parseT(l.slice(0,i));const x=l.slice(i+1).trim();if(!isNaN(t)&&x)a.push({s:t,txt:x})});
+  const D=V.duration||0;a.forEach((x,i)=>x.e=i<a.length-1?a[i+1].s:(D||x.s+10));return a}
+let bufs=[],cacheTxt=[];
+const MOCK=new URLSearchParams(location.search).get('mock');
+function pcmToBuf(ctx,b64,rate){const bin=atob(b64),n=bin.length>>1,f=new Float32Array(n);
+  for(let i=0;i<n;i++){let v=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);if(v>=32768)v-=65536;f[i]=v/32768}
+  const b=ctx.createBuffer(1,n,rate);b.copyToChannel(f,0);return b}
+async function tts(ctx,txt){
+  if(MOCK){const sec=txt.length/14,r=24000,b=ctx.createBuffer(1,Math.round(sec*r),r),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=.15*Math.sin(2*Math.PI*220*i/r)*(1-Math.abs(((i/d.length)*2)-1)*.3);return b}
+  const key=$('key').value.trim();if(!key)throw new Error('API anahtarı boş');
+  const body={contents:[{parts:[{text:$('style').value.trim()+' '+txt}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$('voice').value}}}}};
+  for(let k=0;k<4;k++){
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent($('model').value.trim())+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.status==429||r.status>=500){log('  bekleniyor ('+r.status+')…');await sleep(4000*(k+1));continue}
+    const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+    const p=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts.find(x=>x.inlineData);
+    if(!p)throw new Error('Yanıtta ses yok (içerik filtresi olabilir)');
+    const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');return pcmToBuf(ctx,p.inlineData.data,m?+m[1]:24000)}
+  throw new Error('Sunucu yanıt vermedi, biraz sonra tekrar dene')}
+$('b1').onclick=async()=>{
+  if(!V.src||!V.duration){log('Önce videoyu seç.','er');return}
+  const S=scenes();if(!S.length){log('Sahne metni boş.','er');return}
+  try{if($('rem').checked)localStorage.setItem('gk',$('key').value);else localStorage.removeItem('gk')}catch(e){}
+  $('b1').disabled=true;$('b2').disabled=$('b3').disabled=true;
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  try{for(let i=0;i<S.length;i++){
+      $('pr').style.width=(i/S.length*100)+'%';
+      if(bufs[i]&&cacheTxt[i]===S[i].txt){log('Sahne '+(i+1)+': hazır (önbellek)');continue}
+      log('Sahne '+(i+1)+'/'+S.length+' seslendiriliyor…');
+      bufs[i]=await tts(ctx,S[i].txt);cacheTxt[i]=S[i].txt;
+      log('  ses: '+bufs[i].duration.toFixed(1)+' sn · sahne süresi: '+(S[i].e-S[i].s).toFixed(1)+' sn'+(bufs[i].duration>S[i].e-S[i].s-.6?'  (video bu sahnede yavaşlayacak)':''));
+      if(!MOCK)await sleep(600)}
+    bufs.length=S.length;$('pr').style.width='100%';log('Tüm sesler hazır. Önizle ya da kaydet.','ok');$('b2').disabled=$('b3').disabled=false;window.__ctx=ctx;
+  }catch(e){log('Hata: '+e.message,'er')}
+  $('b1').disabled=false};
+async function seek(t){return new Promise(r=>{const f=()=>{V.removeEventListener('seeked',f);r()};V.addEventListener('seeked',f);V.currentTime=Math.min(t,V.duration-.05)})}
+async function run(record){
+  const S=scenes(),ctx=window.__ctx||new AudioContext();await ctx.resume();
+  const dest=ctx.createMediaStreamDestination(),out=ctx.createGain();out.connect(dest);if(!record)out.connect(ctx.destination);
+  let rec,chunks=[],mt='';
+  if(record){
+    const st=V.captureStream?V.captureStream():V.mozCaptureStream();
+    const ms=new MediaStream([...st.getVideoTracks(),...dest.stream.getAudioTracks()]);
+    mt=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+    rec=new MediaRecorder(ms,mt?{mimeType:mt,videoBitsPerSecond:4000000,audioBitsPerSecond:160000}:{});
+    rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);rec.start(500)}
+  V.muted=true;let total=0;
+  for(let i=0;i<S.length;i++){
+    const d=S[i].e-S[i].s,a=bufs[i].duration,w=Math.max(d,a+.6),r=Math.max(d/w,.0625);
+    $('pr').style.width=(i/S.length*100)+'%';
+    await seek(S[i].s);V.playbackRate=r;await V.play();
+    const src=ctx.createBufferSource();src.buffer=bufs[i];src.connect(out);src.start(ctx.currentTime+.15);
+    await sleep(w*1000);total+=w}
+  V.pause();$('pr').style.width='100%';
+  if(!record)return null;
+  const done=new Promise(r=>rec.onstop=r);rec.stop();await done;
+  const blob=new Blob(chunks,{type:(rec.mimeType||mt||'video/webm').split(';')[0]});return blob}
+$('b2').onclick=async()=>{$('b1').disabled=$('b2').disabled=$('b3').disabled=true;log('Önizleme başladı…');await run(false);log('Önizleme bitti.','ok');$('b1').disabled=$('b2').disabled=$('b3').disabled=false};
+$('b3').onclick=async()=>{$('b1').disabled=$('b2').disabled=$('b3').disabled=true;log('Kayıt başladı, bitene kadar sekmeyi açık bırak…');
+  try{const blob=await run(true);const ext=blob.type.includes('mp4')?'mp4':'webm';const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sesli-video.'+ext;document.body.append(a);a.click();
+    log('Bitti: sesli-video.'+ext+' ('+(blob.size/1048576).toFixed(1)+' MB) indirildi.','ok');window.__out={size:blob.size,type:blob.type};window.__blobUrl=a.href}
+  catch(e){log('Hata: '+e.message,'er')}
+  $('b1').disabled=$('b2').disabled=$('b3').disabled=false};
+</script>
+</body>
+</html>
