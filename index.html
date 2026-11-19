@@ -62,19 +62,22 @@ details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;paddin
 <small id="vnote">⭐ işaretliler benim önerdiklerim, en üstte.</small></div>
 
 <div class="card"><h2>4 · Fon müziği</h2>
-<select id="mood"><option value="oto">🤖 Otomatik · her sahneye uygun olanı ben seçerim</option><option value="duygusal">💧 Duygusal piyano</option><option value="umut">🌅 Umut / İlham</option><option value="haber">📰 Haber bülteni</option><option value="gerilim">😬 Gerilim</option><option value="korku">👻 Korku</option><option value="aksiyon">⚡ Aksiyon</option><option value="sakin">🌙 Sakin belgesel</option><option value="yok">🔇 Müzik yok</option></select>
+<select id="mood"><option value="haber">🎵 Tık-tık ritim (beğendiğin · önerilen)</option><option value="oto">🤖 Otomatik · sahneye göre</option><option value="duygusal">💧 Duygusal piyano</option><option value="umut">🌅 Umut / İlham</option><option value="gerilim">😬 Gerilim</option><option value="korku">👻 Korku</option><option value="aksiyon">⚡ Aksiyon</option><option value="sakin">🌙 Sakin belgesel</option><option value="yok" selected>🔇 Müzik yok (sadece ses)</option></select>
 <button id="mtest" class="g">🎧 Müziği dinle</button></div>
 
 <div class="card"><h2>5 · Metin</h2>
-<select id="hazir"><option value="kose1">Köşe Yazısı 1 · Cebimizdeki Hesap (1 dk)</option><option value="tam">Hesap Vakti · tam belgesel (3:46)</option><option value="bos">Boş · kendi metnim</option></select>
-<textarea id="lines" spellcheck="false">0:00 | Bugün slogan değil, cebimizdeki hesabı konuşalım.
-0:07 | Önce hakkını verelim: yollar, köprüler, hastaneler yapıldı. Bunu inkâr etmiyorum.
-0:13 | Ama 2002'de bir dolar bir buçuk liraydı. Bugün elli liranın üzerinde.
-0:19 | TÜİK yıllık enflasyonu yüzde 29,77 diyor, ENAG yüzde 45. Hangisine inanırsanız inanın, fiyatlar hızla artıyor.
-0:27 | Net asgari ücret 28 bin 75 lira. Türk-İş'in ekim hesabıyla dört kişilik bir ailenin yalnız mutfak masrafı 38 bin 24 lira.
-0:37 | Yani evin tek çalışanı tüm maaşını verse, sofrayı bile dolduramıyor.
-0:44 | İktidar enflasyonun zirveden düştüğünü söylüyor; doğru. Ama düşmek, ucuzlamak demek değil.
-0:51 | İktidarı destekleyen de eleştiren de aynı markete giriyor. Hesap sormak kimseye düşmanlık değil, hepimizin hakkı. Sağlıcakla kalın.</textarea>
+<select id="hazir"><option value="tahta" selected>Tahtanın Arkası · 24 Kasım (müziksiz, sadece ses)</option><option value="kose2">Köşe Yazısı 2 · Çiçekten Önce (24 Kasım)</option><option value="kose1">Köşe Yazısı 1 · Cebimizdeki Hesap (1 dk)</option><option value="tam">Hesap Vakti · tam belgesel (3:46)</option><option value="bos">Boş · kendi metnim</option></select>
+<textarea id="lines" spellcheck="false">0:00.0 | Saat 07.30. Okul kapısı açılmadan, öğretmen çoktan yoldadır.
+0:05.2 | Ders planı, nöbet, veli mesajları, bitmeyen evrak. Teneffüs zili onun için mola demek değildir.
+0:13.2 | Sınıfta yirmi, otuz, bazen daha fazla çocuk. Her birinin ayrı bir hikâyesi, ayrı bir derdi var.
+0:22.1 | Akşam eve dönerken telefon yine çalar: "Hocam, ödev neydi?"
+0:27.8 | Bu yorgunluğa razıyız. Razı olmadığımız şey; güvencesizlik, değersizleştirme ve okul kapısına kadar gelen şiddet.
+0:35.8 | Atama bekleyen on binlerce meslektaşımız var. Sendikalara göre ders başına ücretle çalışan yüz bine yakın arkadaşımız var.
+0:45.1 | Bir de unutulanlar var. Darbe girişiminin ardından KHK'larla binlerce eğitimci ihraç edildi.
+0:52.2 | Darbeyle mücadele şarttı. Ama aralarında yıllar sonra haklı bulunup göreve dönenler de oldu, bunu göremeden hayatını kaybedenler de.
+1:02.0 | Haksız yere tahtasından koparılan her öğretmenin hakkı, adil ve hızlı bir yargıyla teslim edilmeli.
+1:10.0 | Öğretmeni korumak, aslında çocuğu korumaktır.
+1:14.5 | 24 Kasım kutlu olsun. Tahtanın arkasındaki herkese selam olsun.</textarea>
 <small>Her satır: <b>saniye | okunacak cümle</b>. İstersen bir sahneye özel müzik için satıra <b>[korku]</b> gibi etiket ekle.</small></div>
 
 <div class="card" style="text-align:center"><button id="go" style="font-size:20px;padding:16px 26px;width:100%">🎬 Sesli videoyu oluştur</button>
@@ -88,9 +91,9 @@ details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;paddin
 <div class="row"><div><label>Anlatım tarzı</label><select id="preset"><option value="dram">Dramatik belgesel</option><option value="aksiyon">Aksiyonlu</option><option value="sakin">Sakin</option></select></div><div><label>Biçim</label><select id="fmt"><option value="v">📱 Dikey · WhatsApp</option><option value="h">🖥️ Yatay · YouTube</option></select></div></div>
 <button id="vfetch" class="g" type="button">🔄 Ses listesini yenile</button>
 <label>Özel ses kimliği (Voice ID)</label><input type="text" id="cvoice" placeholder="boş bırak = seçili ses">
-<div class="row"><div><label>Üst yazı</label><input type="text" id="kust" value="KÖŞE YAZISI · 1"></div><div><label>Başlık</label><input type="text" id="kbas" value="Cebimizdeki Hesap"></div></div>
+<div class="row"><div><label>Üst yazı</label><input type="text" id="kust" value="24 KASIM"></div><div><label>Başlık</label><input type="text" id="kbas" value="Tahtanın Arkası"></div></div>
 <label>İmza</label><input type="text" id="imza" value="baris-ogretmen.github.io/site-1">
-<label><input type="checkbox" id="sub" checked> Altyazı göm</label> <label><input type="checkbox" id="cine" checked> Müzik ve geçiş efektleri</label> <label><input type="checkbox" id="rem" checked> Anahtarları hatırla</label>
+<label><input type="checkbox" id="sub"> Altyazı göm</label> <label><input type="checkbox" id="cine" checked> Müzik ve geçiş efektleri</label> <label><input type="checkbox" id="rem" checked> Anahtarları hatırla</label>
 <div class="rg"><span>Müzik</span><input type="range" id="vm" min="0" max="100" value="35"><b id="vmv">35</b></div>
 <div class="rg"><span>Efekt</span><input type="range" id="vs" min="0" max="100" value="30"><b id="vsv">30</b></div>
 <div class="rg"><span>Anlatım</span><input type="range" id="vn" min="50" max="200" value="130"><b id="vnv">130</b></div>
@@ -115,7 +118,24 @@ const $=id=>document.getElementById(id);
 const log=(m,c)=>{const d=$('log');d.innerHTML+=(c?'<span class="'+c+'">':'')+String(m).replace(/</g,'&lt;')+(c?'</span>':'')+'\n';d.scrollTop=1e9};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const MOCK=new URLSearchParams(location.search).get('mock');
-const HAZIR={kose1:{lines:`0:00 | Bugün slogan değil, cebimizdeki hesabı konuşalım.
+const HAZIR={tahta:{lines:`0:00.0 | Saat 07.30. Okul kapısı açılmadan, öğretmen çoktan yoldadır.
+0:05.2 | Ders planı, nöbet, veli mesajları, bitmeyen evrak. Teneffüs zili onun için mola demek değildir.
+0:13.2 | Sınıfta yirmi, otuz, bazen daha fazla çocuk. Her birinin ayrı bir hikâyesi, ayrı bir derdi var.
+0:22.1 | Akşam eve dönerken telefon yine çalar: "Hocam, ödev neydi?"
+0:27.8 | Bu yorgunluğa razıyız. Razı olmadığımız şey; güvencesizlik, değersizleştirme ve okul kapısına kadar gelen şiddet.
+0:35.8 | Atama bekleyen on binlerce meslektaşımız var. Sendikalara göre ders başına ücretle çalışan yüz bine yakın arkadaşımız var.
+0:45.1 | Bir de unutulanlar var. Darbe girişiminin ardından KHK'larla binlerce eğitimci ihraç edildi.
+0:52.2 | Darbeyle mücadele şarttı. Ama aralarında yıllar sonra haklı bulunup göreve dönenler de oldu, bunu göremeden hayatını kaybedenler de.
+1:02.0 | Haksız yere tahtasından koparılan her öğretmenin hakkı, adil ve hızlı bir yargıyla teslim edilmeli.
+1:10.0 | Öğretmeni korumak, aslında çocuğu korumaktır.
+1:14.5 | 24 Kasım kutlu olsun. Tahtanın arkasındaki herkese selam olsun.`,ust:'24 KASIM',bas:'Tahtanın Arkası',fmt:'v',sub:false,mood:'yok'},kose2:{lines:`0:00.0 | 24 Kasım geliyor. Yine çiçekler, yine güzel sözler. Ben bu yıl bir öğretmen olarak çiçekten önce birkaç şey istiyorum.
+0:09.6 | Önce hakkını vereyim: Öğretmenlik Meslek Kanunu çıktı, mesleğe bir çerçeve kondu. Bunu görüyorum.
+0:16.6 | Ama sahada tablo şu: Okul öncesinde atama bekleyen öğretmen sayısı 55 binin üzerinde. Kendi branşım. Diploması elinde, kapıda bekliyor.
+0:26.2 | Geçen yıl ayrılan kontenjan 10 bin. Türk Eğitim-Sen'e göre okullarda yaklaşık 100 bin ücretli öğretmen çalışıyor.
+0:34.5 | Ücretli öğretmen, girdiği ders başına brüt 220 lira alıyor. Tatilde ücret yok, güvence yok. Aynı sınıfta, aynı tahtanın önünde.
+0:44.1 | Bir de şiddet var. Bu yıl okullardaki saldırılara, iktidara yakın sendikasından muhalif sendikasına, beş sendika aynı açıklamada tepki gösterdi.
+0:53.7 | Demek ki bu bir parti meselesi değil. Öğretmen yorgunsa, güvencesizse, korkuyorsa, sınıftaki çocuk da bunu hisseder.
+1:02.0 | Bu 24 Kasım'da çiçekten önce kadro, güvence ve saygı istiyoruz. Bütün öğretmenlerimizin günü kutlu olsun.`,ust:'KÖŞE YAZISI · 2',bas:'Çiçekten Önce',fmt:'v'},kose1:{lines:`0:00 | Bugün slogan değil, cebimizdeki hesabı konuşalım.
 0:07 | Önce hakkını verelim: yollar, köprüler, hastaneler yapıldı. Bunu inkâr etmiyorum.
 0:13 | Ama 2002'de bir dolar bir buçuk liraydı. Bugün elli liranın üzerinde.
 0:19 | TÜİK yıllık enflasyonu yüzde 29,77 diyor, ENAG yüzde 45. Hangisine inanırsanız inanın, fiyatlar hızla artıyor.
@@ -305,6 +325,7 @@ function subChunk(p,u,per){if(!p||!p.a||u<LEAD||u>LEAD+p.a+.15)return '';const w
 const SANS='-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
 function drawFrame(g,P,k,u,T,total,src){src=src||V;const s=g.__s||1;g.setTransform(s,0,0,s,0,0);const W=g.canvas.width/s,H=g.canvas.height/s,vert=H>W,p=P[k],sub=$('sub').checked;
  g.fillStyle='#07080c';g.fillRect(0,0,W,H);g.textAlign='center';g.textBaseline='alphabetic';
+ if(vert&&src.videoHeight>src.videoWidth||vert&&src.naturalHeight>src.naturalWidth){try{g.drawImage(src,0,0,W,H)}catch(e){}if(sub){const s=subChunk(p,u,6);if(s){g.font='800 56px '+SANS;g.lineJoin='round';wrap(g,s,W-140).slice(0,2).forEach((l,i)=>{g.lineWidth=10;g.strokeStyle='rgba(0,0,0,.85)';g.strokeText(l,W/2,H-330+i*72);g.fillStyle='#fff';g.fillText(l,W/2,H-330+i*72)})}}return}
  if(vert){try{tg.drawImage(src,0,0,32,18);g.imageSmoothingEnabled=true;g.globalAlpha=.6;g.drawImage(tiny,-W*.7,0,W*2.4,H);g.globalAlpha=1}catch(e){}
   const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'rgba(7,8,12,.6)');gr.addColorStop(.45,'rgba(7,8,12,.3)');gr.addColorStop(1,'rgba(7,8,12,.88)');g.fillStyle=gr;g.fillRect(0,0,W,H);
   const vh=W*9/16,vy=600;try{g.drawImage(src,0,vy,W,vh)}catch(e){}
@@ -322,7 +343,7 @@ function onizle(){const v=$('fmt').value=='v',c=$('cvp');pvc.width=v?1080:1280;p
  const S=scenes(),x=S[Math.min(3,S.length-1)]||{txt:'Altyazı burada görünür',s:0};drawFrame(pvc.getContext('2d'),[{txt:x.txt,a:6}],0,LEAD+1,.4,1);c.getContext('2d').drawImage(pvc,0,0,c.width,c.height)}
 ['fmt','sub','kust','kbas','imza'].forEach(i=>{$(i).addEventListener('input',onizle);$(i).addEventListener('change',onizle)});
 V.addEventListener('loadeddata',()=>{try{V.currentTime=Math.min(22,V.duration/2)}catch(e){}});V.addEventListener('seeked',()=>{if(!window.__recording)onizle()});
-$('hazir').onchange=()=>{const h=HAZIR[$('hazir').value];$('lines').value=h.lines;$('kust').value=h.ust;$('kbas').value=h.bas;$('fmt').value=h.fmt;$('sub').checked=h.fmt=='v';bufs=[];cacheKey=[];onizle();log('Hazır metin yüklendi. Uygun videoyu seçmeyi unutma.','wn')};
+$('hazir').onchange=()=>{const h=HAZIR[$('hazir').value];$('lines').value=h.lines;$('kust').value=h.ust;$('kbas').value=h.bas;$('fmt').value=h.fmt;$('sub').checked=h.sub!==undefined?h.sub:h.fmt=='v';if(h.mood)$('mood').value=h.mood;bufs=[];cacheKey=[];onizle();log('Hazır metin yüklendi. Uygun videoyu seçmeyi unutma.','wn')};
 $('mf').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const c=AC();musicBuf=await decode(c,await f.arrayBuffer());try{c.close()}catch(x){}$('mfx').style.display='';log('Kendi müziğin yüklendi: '+f.name+' ('+musicBuf.duration.toFixed(0)+' sn, döngüde çalar)','ok')}catch(x){log('Müzik dosyası açılamadı','er')}};
 $('mfx').onclick=()=>{musicBuf=null;$('mf').value='';$('mfx').style.display='none';log('Kendi müziğin kaldırıldı, hazır müziklere dönüldü.','wn')};
 $('mtest').onclick=async()=>{const ctx=AC();await ctx.resume();const mv=['oto','yok'].includes($('mood').value)?'duygusal':$('mood').value;const m=master(ctx,ctx.destination,false);schedule(ctx,m,[{i:-1,a:0,w:8,W0:0,mood:mv,txt:''}],ctx.currentTime+.1,Object.assign(opts(),{cine:true}));log('🎧 '+(musicBuf?'Kendi müziğin':MOODS[mv].ad)+' çalıyor (8 sn)…');setTimeout(()=>{try{ctx.close()}catch(e){}},8600)};
@@ -366,7 +387,8 @@ function showResult(blob){const ext=blob.type.includes('mp4')?'mp4':'webm',name=
   $('res').style.display='block';$('rv').src=url;const rb=$('rb');rb.innerHTML='';
   const a=document.createElement('a');a.href=url;a.download=name;$('res').scrollIntoView({behavior:'smooth'});a.textContent='⬇ İndir ('+(blob.size/1048576).toFixed(1)+' MB)';a.style.cssText='display:inline-block;background:#d4ab62;color:#14110a;font-weight:800;padding:12px 18px;border-radius:999px;margin:8px 8px 0 0;text-decoration:none';rb.append(a);
   if(navigator.canShare){try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare({files:[f]})){const b=document.createElement('button');b.textContent='📲 Fotoğraflara kaydet / WhatsApp\'ta paylaş';b.style.cssText='width:100%;font-size:18px';b.onclick=()=>navigator.share({files:[f]}).catch(()=>{});rb.append(b)}}catch(e){}}
-  window.__out={size:blob.size,type:blob.type,url}}
+  window.__out={size:blob.size,type:blob.type,url};
+  setTimeout(()=>{try{a.click();log('⬇ Video otomatik indiriliyor: '+name+'. İnmezse aşağıdaki İndir düğmesine bas.','ok')}catch(e){}},400)}
 $('b2').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);log('Önizleme başladı…');try{await runRT(false);log('Önizleme bitti.','ok')}catch(e){log('Hata: '+e.message,'er')}['b1','b2','b3','b4'].forEach(x=>$(x).disabled=false)};
 $('b3').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);log('Kayıt başladı. Bitene kadar ekranı açık tut…');
   try{const b=await runRT(true);log('Kayıt bitti.','ok');showResult(b)}catch(e){log('Hata: '+e.message,'er');log('④ Yedek yolu dene: ses paketini indir.','wn')}
@@ -387,7 +409,7 @@ $('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);l
 /* tema bilgisi (sahne sırasına göre) */
 theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
 /* ===== ZİRVE KATMANI ===== */
-const APP={surum:"3.2",tarih:"2026-11-19",satir:459,kb:69.7,onceki:{surum:"3.1",satir:454,kb:68.7},yenilikler:["iPhone'da sayfanın yenilenmesine karşı daha hafif kayıt (720×1280)","Üretilen sesler telefona kaydedilir: tekrar denemede kredi harcanmaz","Sessiz kaynak video gizlendi; yalnız önizleme görünür"]};
+const APP={surum:"3.5",tarih:"2026-11-19",satir:481,kb:73.1,onceki:{surum:"3.4",satir:480,kb:73.0},yenilikler:["Ses üretilip video hazır olunca otomatik indirilir","Ana ekrana eklenebilir (uygulama gibi açılır)"]};
 const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
 const SITE_URL="https://baris-ogretmen.github.io/site-1/";
 const ZIRVE=window.ZIRVE={};
