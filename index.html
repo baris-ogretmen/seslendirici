@@ -47,10 +47,10 @@ details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;paddin
 
 <div class="card"><h2>1 · Video</h2>
 <input type="file" id="vf" accept="video/*">
-<video id="v" playsinline webkit-playsinline muted controls></video>
+<video id="v" playsinline webkit-playsinline muted style="display:none"></video>
 <canvas id="cv" width="1080" height="1920"></canvas>
 <canvas id="cvp" width="270" height="480" style="display:block;margin:10px auto 0;border-radius:10px;border:1px solid #2c3342;max-width:55%"></canvas>
-<small style="display:block;text-align:center">Videonun telefonda nasıl görüneceği</small></div>
+<small style="display:block;text-align:center">Videonun telefonda nasıl görüneceği. Ses, oluşturunca eklenir.</small></div>
 
 <div class="card"><h2>2 · Anahtar</h2>
 <textarea id="keys" class="k" spellcheck="false" autocomplete="off" placeholder="ElevenLabs anahtarını buraya yapıştır (sk_…)"></textarea>
@@ -166,6 +166,9 @@ function parseT(s){s=s.trim();if(s.includes(':')){const p=s.split(':').map(parse
 function scenes(){const a=[];$('lines').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(l=>{const i=l.indexOf('|');if(i<0)return;const t=parseT(l.slice(0,i));let x=l.slice(i+1).trim(),mo=null;const mm=/^\[([a-zçğıöşü]+)\]\s*/i.exec(x);if(mm){mo=mm[1].toLocaleLowerCase('tr');x=x.slice(mm[0].length)}if(!isNaN(t)&&x)a.push({s:t,txt:x,mood:MOODS[mo]?mo:null})});
   const D=V.duration||0;a.forEach((x,i)=>x.e=i<a.length-1?a[i+1].s:(D||x.s+10));return a}
 let bufs=[],cacheKey=[],theme=[];
+const IDB={db:null,open(){return this.db||(this.db=new Promise((ok,no)=>{const r=indexedDB.open('seslendirici',1);r.onupgradeneeded=()=>r.result.createObjectStore('ses');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}))},
+ async get(k){const d=await this.open();return new Promise(ok=>{const q=d.transaction('ses').objectStore('ses').get(k);q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null)})},
+ async set(k,v){const d=await this.open();return new Promise(ok=>{const tx=d.transaction('ses','readwrite');tx.objectStore('ses').put(v,k);tx.oncomplete=ok;tx.onerror=ok})}};
 const AC=()=>new (window.AudioContext||window.webkitAudioContext)();
 /* ---------- TTS ---------- */
 function allKeys(){return [...new Set($('keys').value.split(/[\n,;\s]+/).map(x=>x.trim().replace(/^["'“”‘’`]+|["'“”‘’`,;]+$/g,'')).filter(Boolean))]}
@@ -199,9 +202,9 @@ async function tts(ctx,txt){
     }
     try{r=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)})}catch(e){throw new Error('Ağ hatası: '+e.message)}
     if(r.ok){
-      if(eng=='eleven'){return await decode(ctx,await r.arrayBuffer())}
+      if(eng=='eleven'){const ab=await r.arrayBuffer();tts.lastRaw={t:'mp3',d:ab.slice(0)};return await decode(ctx,ab)}
       j=await r.json();const p=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts.find(x=>x.inlineData);
-      if(!p)throw new Error('Yanıtta ses yok (içerik filtresi olabilir)');const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');return pcmToBuf(ctx,p.inlineData.data,m?+m[1]:24000)}
+      if(!p)throw new Error('Yanıtta ses yok (içerik filtresi olabilir)');const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');tts.lastRaw={t:'pcm',d:p.inlineData.data,rate:m?+m[1]:24000};return pcmToBuf(ctx,p.inlineData.data,m?+m[1]:24000)}
     let msg='HTTP '+r.status;try{const t=await r.text();try{const jj=JSON.parse(t);msg=(jj.detail&&(jj.detail.message||jj.detail.status))||(jj.error&&jj.error.message)||t.slice(0,200)}catch(e){msg=t.slice(0,200)}}catch(e){}
     if(eng=='gemini'&&r.status==404&&!tts.disc){tts.disc=1;const ms=await gemModels(key);if(ms.length){$('model').innerHTML=ms.map(m=>'<option>'+m+'</option>').join('');model=ms[0];log('Model güncellendi: '+model,'wn');continue}}
     if(eng=='eleven'&&(r.status==404||r.status==402||/voice/i.test(msg))&&!tts.vdisc){tts.vdisc=1;try{const vr=await fetch('https://api.elevenlabs.io/v1/voices?page_size=100',{headers:{'xi-api-key':key}});if(vr.ok){const vj=await vr.json(),vs=(vj.voices||[]);if(vs.length){vs.sort((x,y)=>(/tr/i.test(JSON.stringify(y.labels||{}))|0)-(/tr/i.test(JSON.stringify(x.labels||{}))|0));$('voice').innerHTML=vs.map(v=>'<option value="'+v.voice_id+'">'+v.name+' (hesabın)</option>').join('');$('cvoice').value='';log('Seçili ses hesabında yok/ücretli; hesabındaki seslerden "'+vs[0].name+'" kullanılıyor. Listeden değiştirebilirsin.','wn');continue}}}catch(e){}}
@@ -228,7 +231,9 @@ $('b1').onclick=async()=>{
       $('pr').style.width=(i/S.length*100)+'%';
       if(bufs[i]&&cacheKey[i]===ck()+S[i].txt){log('Sahne '+(i+1)+': önbellekte');continue}
       log('Sahne '+(i+1)+'/'+S.length+' seslendiriliyor…');
-      bufs[i]=await tts(ctx,S[i].txt);cacheKey[i]=ck()+S[i].txt;
+      const kk=ck()+S[i].txt;let kay=null;try{kay=MOCK?null:await IDB.get(kk)}catch(e){}
+      if(kay){bufs[i]=kay.t=='mp3'?await decode(ctx,kay.d.slice(0)):pcmToBuf(ctx,kay.d,kay.rate);cacheKey[i]=kk;log('  telefonda kayıtlı ses kullanıldı (kredi harcanmadı)','ok');continue}
+      tts.lastRaw=null;bufs[i]=await tts(ctx,S[i].txt);cacheKey[i]=kk;if(tts.lastRaw)IDB.set(kk,tts.lastRaw).catch(()=>{});
       const d=S[i].e-S[i].s;log('  ses '+bufs[i].duration.toFixed(1)+' sn / sahne '+d.toFixed(1)+' sn'+(bufs[i].duration>d-.9?'  → son kare bekletilecek':''));
       if(!MOCK)await sleep(300)}
     bufs.length=S.length;$('pr').style.width='100%';log('Tüm sesler hazır.','ok');['b2','b3','b4'].forEach(x=>$(x).disabled=false)
@@ -298,7 +303,7 @@ const tiny=document.createElement('canvas');tiny.width=32;tiny.height=18;const t
 function wrap(g,txt,maxW){const w=String(txt).split(/\s+/),L=[];let cur='';w.forEach(x=>{const tr=cur?cur+' '+x:x;if(g.measureText(tr).width>maxW&&cur){L.push(cur);cur=x}else cur=tr});if(cur)L.push(cur);return L}
 function subChunk(p,u,per){if(!p||!p.a||u<LEAD||u>LEAD+p.a+.15)return '';const w=p.txt.split(/\s+/),ch=[];for(let i=0;i<w.length;i+=per)ch.push(w.slice(i,i+per).join(' '));const lens=ch.map(c=>c.length+2),tot=lens.reduce((a,b)=>a+b,0);const f=(u-LEAD)/p.a*tot;let acc=0;for(let i=0;i<ch.length;i++){acc+=lens[i];if(f<acc)return ch[i]}return ch[ch.length-1]}
 const SANS='-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
-function drawFrame(g,P,k,u,T,total,src){src=src||V;const W=g.canvas.width,H=g.canvas.height,vert=H>W,p=P[k],sub=$('sub').checked;
+function drawFrame(g,P,k,u,T,total,src){src=src||V;const s=g.__s||1;g.setTransform(s,0,0,s,0,0);const W=g.canvas.width/s,H=g.canvas.height/s,vert=H>W,p=P[k],sub=$('sub').checked;
  g.fillStyle='#07080c';g.fillRect(0,0,W,H);g.textAlign='center';g.textBaseline='alphabetic';
  if(vert){try{tg.drawImage(src,0,0,32,18);g.imageSmoothingEnabled=true;g.globalAlpha=.6;g.drawImage(tiny,-W*.7,0,W*2.4,H);g.globalAlpha=1}catch(e){}
   const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'rgba(7,8,12,.6)');gr.addColorStop(.45,'rgba(7,8,12,.3)');gr.addColorStop(1,'rgba(7,8,12,.88)');g.fillStyle=gr;g.fillRect(0,0,W,H);
@@ -330,13 +335,13 @@ async function runRT(record){
   const P=plan(),S=scenes();const total=P[P.length-1].W0+P[P.length-1].w;
   const ctx=AC();await ctx.resume();const dest=ctx.createMediaStreamDestination();
   const m=master(ctx,dest,!record);const t0=ctx.currentTime+.7;schedule(ctx,m,P,t0,opts());
-  const cv=$('cv'),g=cv.getContext('2d');const vert=$('fmt').value=='v';cv.width=vert?1080:1280;cv.height=vert?1920:720;cv.style.display='block';V.style.display='none';let rec,chunks=[],mt='',kNow=0,uNow=0;
+  const cv=$('cv'),g=cv.getContext('2d');const vert=$('fmt').value=='v';cv.width=vert?720:1280;cv.height=vert?1280:720;g.__s=vert?720/1080:1;cv.style.display='block';let rec,chunks=[],mt='',kNow=0,uNow=0;
   if(record){
     const cs=cv.captureStream?cv.captureStream(30):null;if(!cs)throw new Error('Bu tarayıcı tuvalden kayıt desteklemiyor, ④ yedek yolu kullan');
     const ms=new MediaStream([...cs.getVideoTracks(),...dest.stream.getAudioTracks()]);
     mt=['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
     if(!window.MediaRecorder)throw new Error('MediaRecorder yok, ④ yedek yolu kullan');
-    const ro={videoBitsPerSecond:vert?8000000:6000000,audioBitsPerSecond:192000};if(mt)ro.mimeType=mt;rec=new MediaRecorder(ms,ro);rec.ondataavailable=e=>e.data&&e.data.size&&chunks.push(e.data);rec.onerror=e=>log('Kayıt hatası: '+((e.error&&e.error.message)||e.name||'?'),'er');rec.start(1000)}
+    const ro={videoBitsPerSecond:5000000,audioBitsPerSecond:192000};if(mt)ro.mimeType=mt;rec=new MediaRecorder(ms,ro);rec.ondataavailable=e=>e.data&&e.data.size&&chunks.push(e.data);rec.onerror=e=>log('Kayıt hatası: '+((e.error&&e.error.message)||e.name||'?'),'er');rec.start(1000)}
   V.muted=true;V.playsInline=true;
   let idx=-1,ph='';const sc0=P[0];await seekV(sc0.s);
   await new Promise(res=>{
@@ -352,7 +357,7 @@ async function runRT(record){
         else if(np!='H'&&Math.abs(V.currentTime-want)>.35){V.currentTime=want}}
       drawFrame(g,P,kNow,uNow,Math.max(0,T),total);
       requestAnimationFrame(tick)};tick()});
-  V.pause();V.style.display='';$('cv').style.display='none';$('pr').style.width='100%';
+  V.pause();$('cv').style.display='none';$('pr').style.width='100%';
   if(!record){ctx.close();return null}
   log('Video hazırlanıyor…');const done=new Promise(r=>{rec.onstop=r;setTimeout(r,5000)});try{rec.requestData()}catch(e){}try{rec.stop()}catch(e){}await done;if(!chunks.length)await sleep(2000);try{ctx.close()}catch(e){}if(!chunks.length)throw new Error('Telefon kaydı teslim etmedi');
   return new Blob(chunks,{type:(rec.mimeType||mt||'video/webm').split(';')[0]})}
@@ -382,7 +387,7 @@ $('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);l
 /* tema bilgisi (sahne sırasına göre) */
 theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
 /* ===== ZİRVE KATMANI ===== */
-const APP={surum:"3.1",tarih:"2026-11-19",satir:454,kb:68.7,onceki:{surum:"3.0",satir:454,kb:68.1},yenilikler:["iPhone'da kaydın bitmeyip takılması düzeltildi","Bitince 'Fotoğraflara kaydet / WhatsApp'ta paylaş' düğmesi","WhatsApp için yüksek kalite: 1080×1920, H.264, 8 Mbps, 192 kbps ses","Kayıt alınamazsa yedek paket otomatik iner"]};
+const APP={surum:"3.2",tarih:"2026-11-19",satir:459,kb:69.7,onceki:{surum:"3.1",satir:454,kb:68.7},yenilikler:["iPhone'da sayfanın yenilenmesine karşı daha hafif kayıt (720×1280)","Üretilen sesler telefona kaydedilir: tekrar denemede kredi harcanmaz","Sessiz kaynak video gizlendi; yalnız önizleme görünür"]};
 const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
 const SITE_URL="https://baris-ogretmen.github.io/site-1/";
 const ZIRVE=window.ZIRVE={};
