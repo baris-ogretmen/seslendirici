@@ -3,47 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Seslendirici · Videoya yapay zekâ sesi</title>
+<title>Seslendirici 2 · Sinematik yapay zekâ sesi</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0d12;color:#ece6d6;font-family:'Segoe UI',Arial,sans-serif;line-height:1.45}
-.w{max-width:980px;margin:0 auto;padding:22px 16px 60px}
-h1{font-family:Georgia,serif;font-size:34px;margin:6px 0 2px}h1 span{color:#d4ab62}
-.sub{color:#a9a597;margin-bottom:20px}
-.card{background:#12151c;border:1px solid #232834;border-radius:12px;padding:16px;margin:14px 0}
-.card h2{font-size:15px;letter-spacing:.08em;color:#d4ab62;margin:0 0 10px;text-transform:uppercase}
-label{display:block;font-size:13px;color:#a9a597;margin:10px 0 4px}
-input[type=text],input[type=password],select,textarea{width:100%;background:#0b0d12;color:#ece6d6;border:1px solid #2c3342;border-radius:8px;padding:10px;font:inherit}
-textarea{min-height:230px;font-size:13.5px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:700px){.row{grid-template-columns:1fr}}
-button{background:#d4ab62;color:#14110a;border:0;font-weight:800;font-size:16px;padding:12px 22px;border-radius:999px;cursor:pointer;margin:6px 8px 0 0}
-button.g{background:#232834;color:#ece6d6}button:disabled{opacity:.45;cursor:default}
-video{width:100%;max-height:420px;background:#000;border-radius:8px;margin-top:10px}
-#log{white-space:pre-wrap;font-size:13px;color:#b9b5a8;max-height:220px;overflow:auto;background:#0b0d12;border-radius:8px;padding:10px;margin-top:10px}
+body{margin:0;background:#0b0d12;color:#ece6d6;font-family:-apple-system,'Segoe UI',Arial,sans-serif;line-height:1.45}
+.w{max-width:980px;margin:0 auto;padding:18px 14px 70px}
+h1{font-family:Georgia,serif;font-size:32px;margin:4px 0 2px}h1 span{color:#d4ab62}
+.sub{color:#a9a597;margin-bottom:14px;font-size:14px}
+.card{background:#12151c;border:1px solid #232834;border-radius:12px;padding:14px;margin:12px 0}
+.card h2{font-size:13px;letter-spacing:.1em;color:#d4ab62;margin:0 0 8px;text-transform:uppercase}
+label{display:block;font-size:12.5px;color:#a9a597;margin:10px 0 4px}
+input[type=text],input[type=password],select,textarea{width:100%;background:#0b0d12;color:#ece6d6;border:1px solid #2c3342;border-radius:8px;padding:10px;font:inherit;font-size:16px}
+textarea{min-height:200px;font-size:14px}textarea.k{min-height:64px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+button{background:#d4ab62;color:#14110a;border:0;font-weight:800;font-size:16px;padding:12px 18px;border-radius:999px;cursor:pointer;margin:6px 8px 0 0}
+button.g{background:#232834;color:#ece6d6}button:disabled{opacity:.4}
+video{width:100%;max-height:300px;background:#000;border-radius:8px;margin-top:8px}
+canvas{display:none}
+#log{white-space:pre-wrap;font-size:12.5px;color:#b9b5a8;max-height:230px;overflow:auto;background:#0b0d12;border-radius:8px;padding:10px;margin-top:10px}
 .bar{height:8px;background:#232834;border-radius:6px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;width:0;background:#d4ab62}
-small{color:#7d7a70}
-.ok{color:#8fd19e}.er{color:#ff8a8a}
+small{color:#8a877c}.ok{color:#8fd19e}.er{color:#ff8a8a}.wn{color:#e8c27a}
+.rg{display:grid;grid-template-columns:90px 1fr 38px;gap:8px;align-items:center;font-size:13px;color:#a9a597;margin-top:6px}
+input[type=range]{width:100%}
+#res{display:none}
+</style>
+<meta name="theme-color" content="#0b0d12"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Sinematik Seslendirici"><meta name="application-name" content="Sinematik Seslendirici"><meta name="msapplication-TileColor" content="#0b0d12"><link rel="apple-touch-icon" href="data:image/png;base64,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"><link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAGY0lEQVR4Xu3dy24cRRTG8e5o1ixYxGFHjJBYxLE0voYVIt6SbLk48ALEO8IzkOwIL8DFSbYxW4JYQWRPItnOA6Fxxy3TM2P6zNdVp6rn/xObMd3l6vY3p6priqF8592PCmBeV+Y9ERgjQJAQIEgIECQECBICBMmglE7HoqMCQTIoKEEQDAoSBAFDGCQECBKewiChAkFCgCAhQJAQIEhYSISECgTJoGQlGgIqECQECBICBAkBgoQAQcKHqZCwkAgJQxgkbGmFhAoECQGChKcwSKhAkBAgSFgHgoQKBAkBgoQAQcKWVkioQJAQIEgIECQECBL/hcS/ftpseQWffHvY8siiCNVs+5ZNvW3fbFGYWw4qpw9TA32bY17NFol9JyFDGCQECJK8trTmNdoE6m1agxgVCBICBAkBgqS8urQiNYDF5r+QiKwxhEFCgCAZSGd36s/HG52213Of3j9K4QrLq9ecJ9HkRuSbpHLp2k3xAhQvHq8rp6Ny+/7I61a4BYjodM4lRj6TaNITgstdTWgS7fIGypRLVqYql96LPQd68WNz3nN7z20Iz537zYw9hLlfcM9Mvvcm73BQzltad/ZG4XbNtPHm1bPqsBtrn7c5PkE7e6M//lvUY97ShOZAkdXRqVQv842Rl6hDWOONssPUpyONO9m4z0FFDVA6GuWnNuvnmMV3T3TMwbq9NHtlFekqFrQCoSuuG8oivUmM0uyVVayr8HyMj3WNNmn2yiraVSzuY3xSTkdPq/6srH+RVMf+FwFyVkenUr3MKEZMoiHpYQUKNxx03nKj/NROR09zKUK9ClC44SBcy7nz/JbWMsqzgvW3tD++/ZFzEBsXT2+vP3Ogk9GTqZc96+fthWu5BxZjIdG0KhLuYBNTNyaJp7fWnwoEF72aRC+Ik6O3g/XNjS/dL5kA5aSOTqV66RsjhjBIrpRnXxsb55+Gbn/pJSZ/UbiDTRdl6kaj/NROjp5MzphN3VAOZggL5fh8prKawEwlHALUvTo6leplX2OUx5bW46P96o+xuvHVXH9w06pIoINNzVq/y3fqIBZD6guJx4dvo3P+bh6/XN00xsj0t9MObnS4dny0b+u21g3b6QKewiBJ+ils5rv5cD/mg5XpWcnr4Ablwcp0LhUIEgIECQGChABBQoAgGZSlacGhS8qvNp27gAebLllBBYKEAEFCgCAhQJAQIEgIECRJf5g63NqdenHDrV0+TL3IcUsrFQiS1DeUDbfHRej1y9+qq6xemndLmdZKtYOH27t1by8a91xr+TJuGxIz2dI63L53fvtMf4Sa6axAB5uatb5L3BLEpvruVXF//fLX86pZp7+HCFAoF6pmnyX9FGbaW3mJmI9s4fq8NqOSrW3f4ykMuWIIy0lVhF6dz65m1aSYCFB+UshNjYVESFJfSOyGaQkm3MEmpm5MEk9vrT8VaO3W9OWWWT9vL1zLPcDX/Da1/4Lc9kfOQWxcPL29Xk2i1299XRTF6J9fquuvXnYiXMu561WAOs9NQ4eJrLtax/2izn9ROP2ZA8FFDytQXnIfHAlQEjIasxr4X142xVpACSvaVSzGQqJJtHsfVKyrYBINSR7f0hpXrDdvWJGuwrMC/f5oJew9nG3j42+m/stZP0+c452MGqDPvjtN/C/RDzHvs+dTmPW/POjW5lkROvz756rZ6mWkut+pg4lCHvMqnNeBDh6t3HEtS1VuMLdy+f2NuU+ez+Q7xjdD+Zq8k0UR+2aWy9djB6goioOHU6bPdx4wQ2pr6g0cpyf6PXQewi6adVPQUvz0FEXcp7Cay6X2m9ct9RnCalSdTnilZ/zc+sH1zU6uYW7PH96Y+1wURXH3wRvH++AfoBpJMvHNTS2hACFHUT/KQP8QIEhcN5Sdef5D20n03e8Ns8VAzbbvsKm37Zsdz5ot9yE05w9TTQJ9RphXs6l94ssQBgkBgsR3S6tVXqNNoN6mNYhRgSAhQJAQIEjKD5e3pAaw2PwXEpE1hjBICBAkBAgSAgSJ57e0ogeoQJAQIEgIECQsJEJCBYIkpy2tSBAVCBICBAkBgiSvPdFIDhUIEtaBIOExHhKGMEgIECQECBICBAkBgoQtrZBQgSBhIRESKhAkBAgSAgQJAYKED1MhoQJBQoAgYUsrJCwkQsIQBglPYZBQgSAhQJAQIEgIECQECJJ/AaWQ+szco2o5AAAAAElFTkSuQmCC">
+<style>
+details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;padding:12px 14px;margin:12px 0}details.tl summary{cursor:pointer;font-size:13px;letter-spacing:.1em;color:#d4ab62;text-transform:uppercase;font-weight:700}
+.kr{display:flex;gap:8px;align-items:center;font-size:12.5px;margin-top:6px;word-break:break-all}.seg button{padding:8px 12px;font-size:13px;margin:4px 6px 0 0}.seg button.on{background:#d4ab62;color:#14110a}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#232834;color:#ece6d6;padding:10px 16px;border-radius:999px;font-size:13px;display:none;z-index:50}
+.md{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:60;padding:16px}.md>div{background:#12151c;border:1px solid #2c3342;border-radius:14px;max-width:480px;width:100%;padding:18px;max-height:90vh;overflow:auto}
+.md h3{margin:0 0 8px;color:#d4ab62;font-family:Georgia,serif}.md li{margin:6px 0;font-size:14px}.md img{background:#fff;padding:10px;border-radius:8px;max-width:100%}
+#vb{position:fixed;left:8px;bottom:8px;font-size:11px;color:#8a877c;background:#12151cdd;border:1px solid #232834;border-radius:999px;padding:3px 9px;cursor:pointer;z-index:40;opacity:.8}
+#bn{background:#1b2a1f;border:1px solid #2f5a3a;color:#bfe8c8;border-radius:10px;padding:8px 12px;font-size:13px;margin:8px 0;display:none}
 </style>
 </head>
-<body><div class="w">
-<h1>Sesli <span>Seslendirici</span></h1>
-<div class="sub">Videonu seç → metni yapay zekâ okusun → sahnelere oturtulmuş sesli videoyu indir.</div>
+<body><div class="w"><div id="bn"></div>
+<h1>Sinematik <span>Seslendirici</span></h1>
+<div class="sub">Video seç → gerçekçi yapay zekâ sesi + sinematik müzik/efekt → sesli video. Chrome, Edge ve telefonda çalışır.</div>
 
 <div class="card"><h2>1 · Video</h2>
 <input type="file" id="vf" accept="video/*">
-<video id="v" playsinline controls muted></video>
-<small>Videonun sesi yoksa ya da sessizse en iyisi. Ses, mevcut videonun üzerine eklenir.</small></div>
+<video id="v" playsinline webkit-playsinline muted controls></video>
+<canvas id="cv" width="1280" height="720"></canvas></div>
 
-<div class="card"><h2>2 · Ses motoru (Gemini)</h2>
-<div class="row"><div><label>Gemini API anahtarı</label><input type="password" id="key" placeholder="AIza..."></div>
-<div><label>Ses</label><select id="voice"><option>Charon</option><option>Kore</option><option>Fenrir</option><option>Orus</option><option>Puck</option><option>Aoede</option><option>Algenib</option><option>Alnilam</option></select></div></div>
-<div class="row"><div><label>Model</label><input type="text" id="model" value="gemini-2.5-flash-preview-tts"></div>
-<div><label>Okuma tarzı (Türkçe)</label><input type="text" id="style" value="Derin, sakin, ağırbaşlı bir belgesel anlatıcısı gibi, net ve yavaş oku:"></div></div>
-<label><input type="checkbox" id="rem"> Anahtarı bu tarayıcıda hatırla</label></div>
+<div class="card"><h2>2 · Ses motoru</h2>
+<div class="row"><div><label>Motor</label><select id="eng"><option value="eleven">ElevenLabs (gerçekçi)</option><option value="gemini">Gemini TTS</option></select></div>
+<div><label>Ses</label><select id="voice"></select></div></div>
+<label>Özel ses kimliği (isteğe bağlı: ElevenLabs "Voice ID")</label><input type="text" id="cvoice" placeholder="boş bırak = yukarıdaki ses">
+<label>API anahtarı / anahtarları (her satıra bir tane; biri biterse sıradakine geçer)</label>
+<textarea id="keys" class="k" spellcheck="false" placeholder="sk_...&#10;sk_..."></textarea>
+<div class="row"><div><label>Model</label><select id="model"></select></div>
+<div><label>Anlatım tarzı</label><select id="preset"><option value="aksiyon">Aksiyonlu · gergin · etkileyici</option><option value="dram">Dramatik belgesel</option><option value="sakin">Sakin belgesel</option></select></div></div>
+<label><input type="checkbox" id="rem" checked> Anahtarları bu tarayıcıda hatırla</label>
+<small>ElevenLabs'ta kitaplık sesleri API ile kullanmak için ücretli planda olman gerekir.</small></div>
 
-<div class="card"><h2>3 · Sahne metinleri</h2>
-<small>Her satır: <b>başlangıç | okunacak metin</b> (örn. <b>1:25 | Metin…</b>). Bir sahne bir sonrakinin başlangıcında biter; son sahne videonun sonunda biter. Metni burada düzenleyebilirsin.</small>
+<div class="card"><h2>3 · Sinematik katman</h2>
+<label><input type="checkbox" id="cine" checked> Müzik + vuruş + geçiş efekti ekle (sahne geçişlerinde patlama ve yükselen ses)</label>
+<div class="rg"><span>Müzik</span><input type="range" id="vm" min="0" max="100" value="45"><b id="vmv">45</b></div>
+<div class="rg"><span>Efekt</span><input type="range" id="vs" min="0" max="100" value="60"><b id="vsv">60</b></div>
+<div class="rg"><span>Anlatım</span><input type="range" id="vn" min="50" max="200" value="120"><b id="vnv">120</b></div></div>
+
+<div class="card"><h2>4 · Sahne metinleri</h2>
+<small>Her satır: <b>başlangıç | okunacak metin</b> (örn. <b>1:25 | Metin…</b>). Sahne, sonraki satırın başlangıcında biter.</small>
 <textarea id="lines" spellcheck="false">0:00.0 | 2002'de bir vaatle başladı. Yirmi dört yıl sonra sloganları değil, açıklanmış rakamları konuşuyoruz. Önce hakkını verelim, sonra hesabı soralım.
 0:10.1 | Hakkını teslim edelim: köprüler, havalimanları, hastaneler ve savunma sanayisinde büyük yatırımlar yapıldı, ekonomi büyüdü. Mesele bu emeği inkâr etmek değil; bedelini ve bugünkü tabloyu sormak.
 0:22.8 | 2002'de bir dolar yaklaşık bir buçuk liraydı. Ekim 2026'da Merkez Bankası kuruyla yaklaşık kırk dokuz lira. Lira, dolar karşısında değerinin yüzde doksan yedisini yitirdi.
@@ -60,84 +83,262 @@ small{color:#7d7a70}
 3:19.8 | Muhalif de yandaş da aynı şeyi hak ediyor: bağımsız yargı, özgür basın, adil bir sandık ve doğru rakam. Bunları savunmak bir partiyi değil, hepimizin ortak evini savunmaktır. Hesap sormak bir hak; hesap vermek ise bir görevdir.
 3:37.3 | Kaynaklar ekranda. İzlediğiniz için teşekkürler.</textarea></div>
 
-<div class="card"><h2>4 · Üret ve kaydet</h2>
-<button id="b1">① Sesleri üret</button><button id="b2" class="g" disabled>② Önizle</button><button id="b3" disabled>③ Sesli videoyu kaydet</button>
+<div class="card"><h2>5 · Üret ve kaydet</h2>
+<button id="bt" class="g">🔊 Ses dene (1. sahne)</button><br>
+<button id="b1">① Sesleri üret</button><button id="b2" class="g" disabled>② Önizle</button><button id="b3" disabled>③ Sesli videoyu kaydet</button><br>
+<button id="b4" class="g" disabled>④ Yedek: ses paketini indir (WAV + plan)</button>
 <div class="bar"><i id="pr"></i></div><div id="log"></div>
-<small>Kayıt gerçek zamanlı yapılır (video süresi kadar sürer); sekmeyi kapatma. Ses bir sahnenin süresinden uzunsa o sahnede video otomatik yavaşlar, senkron bozulmaz. Çıktı Chrome'da MP4, değilse WebM olur.</small></div>
+<small>Kayıt gerçek zamanlıdır (~4 dk). Kayıt boyunca ekranı açık tut, sekmeyi değiştirme. Kayıt çalışmazsa ④ ile ses paketini indirip bana gönder, ben birleştiririm.</small></div>
+
+<div class="card" id="res"><h2>Sonuç</h2><video id="rv" playsinline controls></video><div id="rb"></div></div>
+
+<details class="tl" id="tools"><summary>⚙️ Araçlar &amp; Ayarlar</summary>
+<label>🔑 Anahtar sağlığı</label><button id="kt" class="g">Anahtarları Test Et</button><button id="kc" class="g">📋 Tümünü Kopyala</button><button id="kp" class="g">📥 Panodan Yapıştır</button><div id="ktr"></div>
+<small>Ücretsiz anahtar: <a style="color:#d4ab62" target="_blank" href="https://aistudio.google.com/apikey">Gemini</a> · <a style="color:#d4ab62" target="_blank" href="https://elevenlabs.io/app/settings/api-keys">ElevenLabs</a>. Anahtarlar yalnız bu tarayıcıda saklanır, sunucuya gitmez.</small>
+<label>📺 Ekran modu</label><div class="seg" id="seg"><button data-m="0">Oto</button><button data-m="1">Normal</button><button data-m="1.35">Akıllı Tahta</button><button data-m="1.6">Büyük Tahta</button></div>
+<label>Diğer</label><button id="qb" class="g">📲 QR ile paylaş</button><button id="hb" class="g">❓ Nasıl kullanılır</button><button id="sb" class="g">🏠 Siteye Dön</button>
+</details>
+<div id="toast"></div><div class="md" id="qm"><div><h3>📲 QR ile Paylaş</h3><div id="qi"></div><p id="qu" style="font-size:12px;word-break:break-all"></p><button id="ql" class="g">Linki kopyala</button><button id="qd" class="g">PNG indir</button><button id="qx">Kapat</button></div></div>
+<div class="md" id="hm"><div><h3 id="ht"></h3><p id="hs" style="font-size:14px;color:#a9a597"></p><ol id="hl"></ol><button id="hx">Anladım, başlayalım</button></div></div>
+<div class="md" id="vm2"><div><h3>Sürüm bilgisi</h3><div id="vd" style="font-size:13px"></div><button id="vx">Kapat</button></div></div>
+<div id="vb"></div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
-const log=(m,c)=>{const d=$('log');d.innerHTML+=(c?'<span class="'+c+'">':'')+m.replace(/</g,'&lt;')+(c?'</span>':'')+'\n';d.scrollTop=1e9};
+const log=(m,c)=>{const d=$('log');d.innerHTML+=(c?'<span class="'+c+'">':'')+String(m).replace(/</g,'&lt;')+(c?'</span>':'')+'\n';d.scrollTop=1e9};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-try{const k=localStorage.getItem('gk');if(k){$('key').value=k;$('rem').checked=true}}catch(e){}
+const MOCK=new URLSearchParams(location.search).get('mock');
+/* ---------- motor tanımları ---------- */
+const ENG={
+ eleven:{voices:[["Celil · derin belgesel anlatıcı","Zpbxhg6LG47cY8y5BJrf"],["Ömür · sıcak, derin baritonu","X6EHbOBe9sjpG7kyfrOA"],["Ahmet · güçlü ve derin","ZsYcqahfiS2dy4J6XYC5"],["Muhammer · profesyonel","GLHtjkeLJ9Rxcv9JhLmh"],["Yusuf · hikâye anlatıcı","tOqnHSMt5y3uRBgH7e8J"],["Atakan · dinamik","gsJ9nrlXYbPztJxC4fwc"]],models:["eleven_multilingual_v2","eleven_v3","eleven_turbo_v2_5"]},
+ gemini:{voices:["Charon","Kore","Fenrir","Orus","Puck","Aoede","Algenib","Alnilam"].map(x=>[x,x]),models:["gemini-2.5-flash-preview-tts","gemini-2.5-pro-preview-tts"]}};
+const PRE={aksiyon:{st:.25,sty:.65,sp:1.08,g:"Gergin, enerjik ve etkileyici bir belgesel anlatıcısı gibi, vurgulu ve net oku:"},dram:{st:.4,sty:.4,sp:1.0,g:"Derin, ağırbaşlı, dramatik bir belgesel anlatıcısı gibi oku:"},sakin:{st:.65,sty:.1,sp:1.0,g:"Sakin ve net bir belgesel anlatıcısı gibi oku:"}};
+function fillEng(){const e=ENG[$('eng').value];$('voice').innerHTML=e.voices.map(v=>'<option value="'+v[1]+'">'+v[0]+'</option>').join('');$('model').innerHTML=e.models.map(m=>'<option>'+m+'</option>').join('');
+  try{const k=localStorage.getItem('keys_'+$('eng').value);$('keys').value=k||''}catch(x){}}
+$('eng').onchange=fillEng;fillEng();
+['vm','vs','vn'].forEach(i=>$(i).oninput=()=>$(i+'v').textContent=$(i).value);
 const V=$('v');
 $('vf').onchange=e=>{const f=e.target.files[0];if(!f)return;V.src=URL.createObjectURL(f);V.onloadedmetadata=()=>log('Video yüklendi: '+V.duration.toFixed(1)+' sn','ok')};
+/* ---------- sahneler ---------- */
 function parseT(s){s=s.trim();if(s.includes(':')){const p=s.split(':').map(parseFloat);return p.length==3?p[0]*3600+p[1]*60+p[2]:p[0]*60+p[1]}return parseFloat(s)}
-function scenes(){const L=$('lines').value.split('\n').map(x=>x.trim()).filter(Boolean);const a=[];
-  L.forEach(l=>{const i=l.indexOf('|');if(i<0)return;const t=parseT(l.slice(0,i));const x=l.slice(i+1).trim();if(!isNaN(t)&&x)a.push({s:t,txt:x})});
+function scenes(){const a=[];$('lines').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(l=>{const i=l.indexOf('|');if(i<0)return;const t=parseT(l.slice(0,i)),x=l.slice(i+1).trim();if(!isNaN(t)&&x)a.push({s:t,txt:x})});
   const D=V.duration||0;a.forEach((x,i)=>x.e=i<a.length-1?a[i+1].s:(D||x.s+10));return a}
-let bufs=[],cacheTxt=[];
-const MOCK=new URLSearchParams(location.search).get('mock');
-function pcmToBuf(ctx,b64,rate){const bin=atob(b64),n=bin.length>>1,f=new Float32Array(n);
-  for(let i=0;i<n;i++){let v=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);if(v>=32768)v-=65536;f[i]=v/32768}
-  const b=ctx.createBuffer(1,n,rate);b.copyToChannel(f,0);return b}
+let bufs=[],cacheKey=[],theme=[];
+const AC=()=>new (window.AudioContext||window.webkitAudioContext)();
+/* ---------- TTS ---------- */
+function keyList(){return $('keys').value.split(/[\n,;\s]+/).map(x=>x.trim()).filter(Boolean)}
+let kIdx=0;
+const decode=(ctx,ab)=>new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab,res,rej);if(p&&p.catch)p.catch(rej)});
+function pcmToBuf(ctx,b64,rate){const bin=atob(b64),n=bin.length>>1,f=new Float32Array(n);for(let i=0;i<n;i++){let v=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);if(v>=32768)v-=65536;f[i]=v/32768}const b=ctx.createBuffer(1,n,rate);b.getChannelData(0).set(f);return b}
 async function tts(ctx,txt){
-  if(MOCK){const sec=txt.length/14,r=24000,b=ctx.createBuffer(1,Math.round(sec*r),r),d=b.getChannelData(0);
-    for(let i=0;i<d.length;i++)d[i]=.15*Math.sin(2*Math.PI*220*i/r)*(1-Math.abs(((i/d.length)*2)-1)*.3);return b}
-  const key=$('key').value.trim();if(!key)throw new Error('API anahtarı boş');
-  const body={contents:[{parts:[{text:$('style').value.trim()+' '+txt}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$('voice').value}}}}};
-  for(let k=0;k<4;k++){
-    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent($('model').value.trim())+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(r.status==429||r.status>=500){log('  bekleniyor ('+r.status+')…');await sleep(4000*(k+1));continue}
-    const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
-    const p=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts.find(x=>x.inlineData);
-    if(!p)throw new Error('Yanıtta ses yok (içerik filtresi olabilir)');
-    const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');return pcmToBuf(ctx,p.inlineData.data,m?+m[1]:24000)}
-  throw new Error('Sunucu yanıt vermedi, biraz sonra tekrar dene')}
+  if(MOCK){const sec=txt.length/14,r=24000,b=ctx.createBuffer(1,Math.round(sec*r),r),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=.2*Math.sin(2*Math.PI*(180+40*Math.sin(i/9000))*i/r)*(.6+.4*Math.sin(i/3000));return b}
+  const keys=keyList();if(!keys.length)throw new Error('API anahtarı yok (2. kutuya yapıştır)');
+  const eng=$('eng').value,P=PRE[$('preset').value],model=$('model').value.trim();
+  let lastErr='';
+  for(let n=0;n<keys.length*3+2;n++){
+    const key=keys[kIdx%keys.length];
+    let r,j,url,body,headers;
+    if(eng=='eleven'){
+      const vid=($('cvoice').value.trim()||$('voice').value);
+      url='https://api.elevenlabs.io/v1/text-to-speech/'+encodeURIComponent(vid)+'?output_format=mp3_44100_128';
+      headers={'xi-api-key':key,'Content-Type':'application/json','Accept':'audio/mpeg'};
+      const v3=/v3/.test(model);
+      body={text:txt,model_id:model,voice_settings:{stability:v3?(P.st<.3?0:.5):P.st,similarity_boost:.8,style:P.sty,use_speaker_boost:true,speed:Math.min(1.2,P.sp)}};
+      if(/v3|turbo|flash/.test(model))body.language_code='tr';
+    }else{
+      url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key);
+      headers={'Content-Type':'application/json'};
+      body={contents:[{parts:[{text:P.g+' '+txt}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$('voice').value}}}}};
+    }
+    try{r=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)})}catch(e){throw new Error('Ağ hatası: '+e.message)}
+    if(r.ok){
+      if(eng=='eleven'){return await decode(ctx,await r.arrayBuffer())}
+      j=await r.json();const p=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts.find(x=>x.inlineData);
+      if(!p)throw new Error('Yanıtta ses yok (içerik filtresi olabilir)');const m=/rate=(\d+)/.exec(p.inlineData.mimeType||'');return pcmToBuf(ctx,p.inlineData.data,m?+m[1]:24000)}
+    let msg='HTTP '+r.status;try{const t=await r.text();try{const jj=JSON.parse(t);msg=(jj.detail&&(jj.detail.message||jj.detail.status))||(jj.error&&jj.error.message)||t.slice(0,200)}catch(e){msg=t.slice(0,200)}}catch(e){}
+    msg=trErr(r.status,msg);lastErr=msg;
+    if(r.status==401||r.status==402||r.status==403||r.status==429||/quota|limit|credit/i.test(msg)){
+      if(keys.length>1){kIdx++;log('  anahtar değiştirildi ('+r.status+')','wn');await sleep(800);continue}
+      if(r.status==429){log('  yoğunluk, bekleniyor…','wn');await sleep(4000);continue}
+      throw new Error(msg)}
+    if(r.status>=500){await sleep(3000);continue}
+    throw new Error(msg)}
+  throw new Error(lastErr||'Ses üretilemedi')}
+function saveKeys(){try{if($('rem').checked)localStorage.setItem('keys_'+$('eng').value,$('keys').value);else localStorage.removeItem('keys_'+$('eng').value)}catch(e){}}
+$('bt').onclick=async()=>{try{saveKeys();const S=scenes();if(!S.length){log('Sahne metni boş','er');return}$('bt').disabled=true;const ctx=AC();await ctx.resume();log('Deneme sesi üretiliyor…');
+  const b=await tts(ctx,S[0].txt);log('Hazır: '+b.duration.toFixed(1)+' sn, çalıyor','ok');const s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start()}catch(e){log('Hata: '+e.message,'er')}$('bt').disabled=false};
 $('b1').onclick=async()=>{
   if(!V.src||!V.duration){log('Önce videoyu seç.','er');return}
   const S=scenes();if(!S.length){log('Sahne metni boş.','er');return}
-  try{if($('rem').checked)localStorage.setItem('gk',$('key').value);else localStorage.removeItem('gk')}catch(e){}
-  $('b1').disabled=true;$('b2').disabled=$('b3').disabled=true;
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  saveKeys();['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);
+  const ctx=AC();await ctx.resume();
+  const ck=()=>[$('eng').value,$('voice').value,$('cvoice').value,$('model').value,$('preset').value].join('|');
   try{for(let i=0;i<S.length;i++){
       $('pr').style.width=(i/S.length*100)+'%';
-      if(bufs[i]&&cacheTxt[i]===S[i].txt){log('Sahne '+(i+1)+': hazır (önbellek)');continue}
+      if(bufs[i]&&cacheKey[i]===ck()+S[i].txt){log('Sahne '+(i+1)+': önbellekte');continue}
       log('Sahne '+(i+1)+'/'+S.length+' seslendiriliyor…');
-      bufs[i]=await tts(ctx,S[i].txt);cacheTxt[i]=S[i].txt;
-      log('  ses: '+bufs[i].duration.toFixed(1)+' sn · sahne süresi: '+(S[i].e-S[i].s).toFixed(1)+' sn'+(bufs[i].duration>S[i].e-S[i].s-.6?'  (video bu sahnede yavaşlayacak)':''));
-      if(!MOCK)await sleep(600)}
-    bufs.length=S.length;$('pr').style.width='100%';log('Tüm sesler hazır. Önizle ya da kaydet.','ok');$('b2').disabled=$('b3').disabled=false;window.__ctx=ctx;
+      bufs[i]=await tts(ctx,S[i].txt);cacheKey[i]=ck()+S[i].txt;
+      const d=S[i].e-S[i].s;log('  ses '+bufs[i].duration.toFixed(1)+' sn / sahne '+d.toFixed(1)+' sn'+(bufs[i].duration>d-.9?'  → son kare bekletilecek':''));
+      if(!MOCK)await sleep(300)}
+    bufs.length=S.length;$('pr').style.width='100%';log('Tüm sesler hazır.','ok');['b2','b3','b4'].forEach(x=>$(x).disabled=false)
   }catch(e){log('Hata: '+e.message,'er')}
   $('b1').disabled=false};
-async function seek(t){return new Promise(r=>{const f=()=>{V.removeEventListener('seeked',f);r()};V.addEventListener('seeked',f);V.currentTime=Math.min(t,V.duration-.05)})}
-async function run(record){
-  const S=scenes(),ctx=window.__ctx||new AudioContext();await ctx.resume();
-  const dest=ctx.createMediaStreamDestination(),out=ctx.createGain();out.connect(dest);if(!record)out.connect(ctx.destination);
-  let rec,chunks=[],mt='';
+/* ---------- zaman planı ---------- */
+const LEAD=.45;
+function plan(){const S=scenes();let W=0;return S.map((x,i)=>{const d=x.e-x.s,a=bufs[i]?bufs[i].duration:0,fade=Math.min(.5,d*.3);const hold=Math.max(d-fade,a+LEAD+.3);const w=hold+fade;const p={i,s:x.s,e:x.e,d,a,fade,hold,w,W0:W};W+=w;return p})}
+/* ---------- sinematik katman ---------- */
+function noiseBuf(ctx){const b=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b}
+function schedule(ctx,master,P,t0,o){
+  /* anlatım */
+  const ng=ctx.createGain();ng.gain.value=o.vn;ng.connect(master);
+  P.forEach(p=>{const s=ctx.createBufferSource();s.buffer=bufs[p.i];s.connect(ng);s.start(t0+p.W0+LEAD)});
+  if(!o.cine)return;
+  const mus=ctx.createGain();mus.gain.value=o.vm;mus.connect(master);
+  const sfx=ctx.createGain();sfx.gain.value=o.vs;sfx.connect(master);
+  const NB=noiseBuf(ctx),total=P[P.length-1].W0+P[P.length-1].w;
+  /* drone + pad (tema köküne göre) */
+  const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=900;lp.Q.value=.6;lp.connect(mus);
+  const dg=ctx.createGain();dg.gain.value=.0;dg.connect(lp);
+  const oscs=[['sawtooth',1,0],['sawtooth',1,9],['triangle',4,0],['sine',2,0]].map(([ty,mul,det])=>{const os=ctx.createOscillator();os.type=ty;os.detune.value=det;const g=ctx.createGain();g.gain.value=ty=='triangle'?.25:ty=='sine'?.6:.35;os.connect(g);g.connect(dg);os.start(t0);os.stop(t0+total+1);return {os,mul}});
+  const ROOT={blue:55,amber:49,rose:41.2};
+  P.forEach(p=>{const root=ROOT[theme[p.i]]||55,t=t0+p.W0;
+    oscs.forEach(x=>{x.os.frequency.setTargetAtTime(root*x.mul,t,.4)});
+    /* ses kısma: anlatım sırasında müzik düşük */
+    dg.gain.setTargetAtTime(.22,t+LEAD-.1,.25);
+    dg.gain.setTargetAtTime(.6,t+LEAD+p.a+.05,.5);
+    dg.gain.setTargetAtTime(.22,t+p.W0*0+p.w+LEAD-.1,.01);
+    /* vuruş + patlama */
+    const bo=ctx.createOscillator(),bg=ctx.createGain();bo.type='sine';bo.frequency.setValueAtTime(110,t);bo.frequency.exponentialRampToValueAtTime(34,t+.9);bg.gain.setValueAtTime(1.0,t);bg.gain.exponentialRampToValueAtTime(.001,t+1.3);bo.connect(bg);bg.connect(sfx);bo.start(t);bo.stop(t+1.4);
+    const nz=ctx.createBufferSource();nz.buffer=NB;const nf=ctx.createBiquadFilter();nf.type='lowpass';nf.frequency.setValueAtTime(2400,t);nf.frequency.exponentialRampToValueAtTime(200,t+.7);const ngn=ctx.createGain();ngn.gain.setValueAtTime(.55,t);ngn.gain.exponentialRampToValueAtTime(.001,t+.8);nz.connect(nf);nf.connect(ngn);ngn.connect(sfx);nz.start(t,0,1);
+    /* yükselen geçiş sesi */
+    if(p.i<P.length-1){const rt=t+p.w-1.15,rn=ctx.createBufferSource();rn.buffer=NB;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.Q.value=2.2;bp.frequency.setValueAtTime(300,rt);bp.frequency.exponentialRampToValueAtTime(5200,rt+1.1);const rg=ctx.createGain();rg.gain.setValueAtTime(.0001,rt);rg.gain.exponentialRampToValueAtTime(.5,rt+1.05);rg.gain.linearRampToValueAtTime(0,rt+1.15);rn.connect(bp);bp.connect(rg);rg.connect(sfx);rn.start(rt,0,1.2)}
+    /* nabız: kick + hat */
+    const bpm=theme[p.i]=='rose'?104:theme[p.i]=='amber'?96:88,beat=60/bpm,inten=theme[p.i]=='rose'?.9:theme[p.i]=='amber'?.7:.5;
+    for(let b=0,tt=t+.8;tt<t+p.w-1.2;b++,tt+=beat){
+      if(b%2==0){const ko=ctx.createOscillator(),kg=ctx.createGain();ko.type='sine';ko.frequency.setValueAtTime(150,tt);ko.frequency.exponentialRampToValueAtTime(48,tt+.12);kg.gain.setValueAtTime(.55*inten,tt);kg.gain.exponentialRampToValueAtTime(.001,tt+.22);ko.connect(kg);kg.connect(mus);ko.start(tt);ko.stop(tt+.25)}
+      const hn=ctx.createBufferSource();hn.buffer=NB;const hf=ctx.createBiquadFilter();hf.type='highpass';hf.frequency.value=6500;const hg=ctx.createGain();hg.gain.setValueAtTime(.14*inten,tt+beat/2);hg.gain.exponentialRampToValueAtTime(.001,tt+beat/2+.05);hn.connect(hf);hf.connect(hg);hg.connect(mus);hn.start(tt+beat/2,0,.08)}
+  });
+  dg.gain.setValueAtTime(.0001,t0);
+}
+function opts(){return{cine:$('cine').checked,vm:$('vm').value/100*1.4,vs:$('vs').value/100*1.0,vn:$('vn').value/100*1.0}}
+function master(ctx,dest,toSpeaker){const m=ctx.createGain(),c=ctx.createDynamicsCompressor();c.threshold.value=-18;c.ratio.value=3.5;c.attack.value=.01;c.release.value=.25;m.gain.value=.9;m.connect(c);c.connect(dest);if(toSpeaker)c.connect(ctx.destination);return m}
+/* ---------- gerçek zamanlı çalma / kayıt ---------- */
+async function runRT(record){
+  const P=plan(),S=scenes();const total=P[P.length-1].W0+P[P.length-1].w;
+  const ctx=AC();await ctx.resume();const dest=ctx.createMediaStreamDestination();
+  const m=master(ctx,dest,!record);const t0=ctx.currentTime+.7;schedule(ctx,m,P,t0,opts());
+  const cv=$('cv'),g=cv.getContext('2d');let rec,chunks=[],mt='';
   if(record){
-    const st=V.captureStream?V.captureStream():V.mozCaptureStream();
-    const ms=new MediaStream([...st.getVideoTracks(),...dest.stream.getAudioTracks()]);
-    mt=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
-    rec=new MediaRecorder(ms,mt?{mimeType:mt,videoBitsPerSecond:4000000,audioBitsPerSecond:160000}:{});
-    rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);rec.start(500)}
-  V.muted=true;let total=0;
-  for(let i=0;i<S.length;i++){
-    const d=S[i].e-S[i].s,a=bufs[i].duration,w=Math.max(d,a+.6),r=Math.max(d/w,.0625);
-    $('pr').style.width=(i/S.length*100)+'%';
-    await seek(S[i].s);V.playbackRate=r;await V.play();
-    const src=ctx.createBufferSource();src.buffer=bufs[i];src.connect(out);src.start(ctx.currentTime+.15);
-    await sleep(w*1000);total+=w}
+    const cs=cv.captureStream?cv.captureStream(30):null;if(!cs)throw new Error('Bu tarayıcı tuvalden kayıt desteklemiyor, ④ yedek yolu kullan');
+    const ms=new MediaStream([...cs.getVideoTracks(),...dest.stream.getAudioTracks()]);
+    mt=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
+    if(!window.MediaRecorder)throw new Error('MediaRecorder yok, ④ yedek yolu kullan');
+    rec=new MediaRecorder(ms,mt?{mimeType:mt,videoBitsPerSecond:5000000}:{});rec.ondataavailable=e=>e.data&&e.data.size&&chunks.push(e.data);rec.start(1000)}
+  V.muted=true;V.playsInline=true;
+  let idx=-1,ph='';const sc0=P[0];await seekV(sc0.s);
+  await new Promise(res=>{
+    const tick=()=>{const T=ctx.currentTime-t0;
+      if(T>=total){res();return}
+      if(T>=0){let k=P.findIndex(p=>T>=p.W0&&T<p.W0+p.w);if(k<0)k=P.length-1;const p=P[k],u=T-p.W0;
+        $('pr').style.width=(T/total*100)+'%';
+        const aEnd=p.d-p.fade;let want,np;
+        if(u<aEnd){np='A';want=p.s+u}else if(u<p.hold){np='H';want=p.s+aEnd}else{np='B';want=p.s+aEnd+(u-p.hold)}
+        if(k!==idx||np!==ph){
+          if(np=='H'){V.pause();}else{if(k!==idx||ph=='H'){V.currentTime=want}V.play().catch(()=>{})}
+          idx=k;ph=np}
+        else if(np!='H'&&Math.abs(V.currentTime-want)>.35){V.currentTime=want}}
+      try{g.drawImage(V,0,0,1280,720)}catch(e){}
+      requestAnimationFrame(tick)};tick()});
   V.pause();$('pr').style.width='100%';
-  if(!record)return null;
-  const done=new Promise(r=>rec.onstop=r);rec.stop();await done;
-  const blob=new Blob(chunks,{type:(rec.mimeType||mt||'video/webm').split(';')[0]});return blob}
-$('b2').onclick=async()=>{$('b1').disabled=$('b2').disabled=$('b3').disabled=true;log('Önizleme başladı…');await run(false);log('Önizleme bitti.','ok');$('b1').disabled=$('b2').disabled=$('b3').disabled=false};
-$('b3').onclick=async()=>{$('b1').disabled=$('b2').disabled=$('b3').disabled=true;log('Kayıt başladı, bitene kadar sekmeyi açık bırak…');
-  try{const blob=await run(true);const ext=blob.type.includes('mp4')?'mp4':'webm';const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sesli-video.'+ext;document.body.append(a);a.click();
-    log('Bitti: sesli-video.'+ext+' ('+(blob.size/1048576).toFixed(1)+' MB) indirildi.','ok');window.__out={size:blob.size,type:blob.type};window.__blobUrl=a.href}
+  if(!record){ctx.close();return null}
+  const done=new Promise(r=>rec.onstop=r);rec.stop();await done;ctx.close();
+  return new Blob(chunks,{type:(rec.mimeType||mt||'video/webm').split(';')[0]})}
+function seekV(t){return new Promise(r=>{const f=()=>{V.removeEventListener('seeked',f);r()};V.addEventListener('seeked',f);V.currentTime=Math.min(t,V.duration-.05)})}
+function showResult(blob){const ext=blob.type.includes('mp4')?'mp4':'webm',name='sesli-video.'+ext,url=URL.createObjectURL(blob);
+  $('res').style.display='block';$('rv').src=url;const rb=$('rb');rb.innerHTML='';
+  const a=document.createElement('a');a.href=url;a.download=name;a.textContent='⬇ İndir ('+(blob.size/1048576).toFixed(1)+' MB)';a.style.cssText='display:inline-block;background:#d4ab62;color:#14110a;font-weight:800;padding:12px 18px;border-radius:999px;margin:8px 8px 0 0;text-decoration:none';rb.append(a);
+  if(navigator.canShare){try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare({files:[f]})){const b=document.createElement('button');b.textContent='📲 Paylaş / Videoyu Kaydet';b.onclick=()=>navigator.share({files:[f]}).catch(()=>{});rb.append(b)}}catch(e){}}
+  window.__out={size:blob.size,type:blob.type,url}}
+$('b2').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);log('Önizleme başladı…');try{await runRT(false);log('Önizleme bitti.','ok')}catch(e){log('Hata: '+e.message,'er')}['b1','b2','b3','b4'].forEach(x=>$(x).disabled=false)};
+$('b3').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);log('Kayıt başladı. Bitene kadar ekranı açık tut…');
+  try{const b=await runRT(true);log('Kayıt bitti.','ok');showResult(b)}catch(e){log('Hata: '+e.message,'er');log('④ Yedek yolu dene: ses paketini indir.','wn')}
+  ['b1','b2','b3','b4'].forEach(x=>$(x).disabled=false)};
+/* ---------- yedek: WAV + plan ---------- */
+function wav16(buf){const d=buf.getChannelData(0),n=d.length,ab=new ArrayBuffer(44+n*2),v=new DataView(ab);const w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,buf.sampleRate,true);v.setUint32(28,buf.sampleRate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++){let s=Math.max(-1,Math.min(1,d[i]));v.setInt16(44+i*2,s<0?s*32768:s*32767,true)}return new Blob([ab],{type:'audio/wav'})}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>a.remove(),2000)}
+$('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);log('Ses paketi hazırlanıyor (video kaydı gerekmez)…');
+  try{const P=plan(),total=P[P.length-1].W0+P[P.length-1].w,sr=44100;const oc=new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(1,Math.ceil((total+.5)*sr),sr);
+    const m=master(oc,oc.destination,false);schedule(oc,m,P,0,opts());const out=await oc.startRendering();
+    const wb=wav16(out);dl(wb,'seslendirme.wav');await sleep(900);
+    dl(new Blob([JSON.stringify({total,lead:LEAD,scenes:P},null,1)],{type:'application/json'}),'plan.json');
+    log('İndirildi: seslendirme.wav ('+(wb.size/1048576).toFixed(1)+' MB) ve plan.json. İkisini de bana gönder, videoyu birleştirip geri vereyim.','ok');window.__pkg={wav:wb.size,total}}
   catch(e){log('Hata: '+e.message,'er')}
-  $('b1').disabled=$('b2').disabled=$('b3').disabled=false};
+  ['b1','b2','b3','b4'].forEach(x=>$(x).disabled=false)};
+/* tema bilgisi (sahne sırasına göre) */
+theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
+/* ===== ZİRVE KATMANI ===== */
+const APP={surum:"2.1",tarih:"2026-11-19",satir:344,kb:49.7,onceki:{surum:"2.0",satir:262,kb:25.8},yenilikler:["Anahtar sağlık testi + kopyala/yapıştır","Ekran modu (tahta uyumu), QR paylaşım, karşılama rehberi","Sürüm rozeti ve modül öz-kontrolü","Chrome için uyanık-tut ve sekme uyarısı","Ana ekrana eklenebilir ikon (PWA)"]};
+const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
+const SITE_URL="https://baris-ogretmen.github.io/site-1/";
+const ZIRVE=window.ZIRVE={};
+ZIRVE.duzMetin=s=>String(s||'').replace(/<(br|\/p|\/li)\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/^#+\s*/gm,'').replace(/\*\*|__|`/g,'').replace(/^[>\-\*]\s+/gm,'').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+function toast(m,ms){const e=$('toast');e.textContent=m;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',ms||2600)}
+/* gömülü anahtarlar */
+try{if(GOMULU_ANAHTARLAR.length&&!$('keys').value.trim())$('keys').value=GOMULU_ANAHTARLAR.join('\n')}catch(e){}
+/* bağlantı bildirimi */
+addEventListener('offline',()=>toast('📡 İnternet gitti'));addEventListener('online',()=>toast('✅ İnternet geri geldi'));
+/* anahtar testi (kayıt/ring'i atlar, doğrudan fetch) */
+ZIRVE.anahtarTest=async function(key,eng){try{
+  let r;if(eng=='eleven')r=await fetch('https://api.elevenlabs.io/v1/user',{headers:{'xi-api-key':key}});else r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));
+  if(r.ok){let ek='';if(eng=='eleven'){try{const j=await r.json(),s=j.subscription||{};if(s.character_limit!=null)ek=' · kalan '+(s.character_limit-s.character_count)+' karakter';if(s.character_limit&&s.character_count>=s.character_limit)return{ok:false,durum:'🟡',mesaj:'Geçerli ama kota dolu'+ek}}catch(e){}}return{ok:true,durum:'🟢',mesaj:'Çalışıyor'+ek}}
+  if(r.status==429)return{ok:false,durum:'🟡',mesaj:'Geçerli ama kota dolu'};
+  if(r.status==401||r.status==400)return{ok:false,durum:'🔴',mesaj:'Geçersiz anahtar'};
+  if(r.status==403)return{ok:false,durum:'🔴',mesaj:'İzin yok (anahtarın bu API erişimi kapalı)'};
+  return{ok:false,durum:'🔴',mesaj:'HTTP '+r.status}}catch(e){return{ok:false,durum:'🔴',mesaj:'Ağ hatası'}}};
+$('kt').onclick=async()=>{const ks=keyList(),eng=$('eng').value,o=$('ktr');if(!ks.length){o.innerHTML='<small class="er">Önce anahtar yapıştır.</small>';return}o.innerHTML='';
+  for(let i=0;i<ks.length;i++){const r=await ZIRVE.anahtarTest(ks[i],eng),k=ks[i];o.innerHTML+='<div class="kr">'+r.durum+' #'+(i+1)+' '+k.slice(0,6)+'…'+k.slice(-4)+' — '+r.mesaj+'</div>'}};
+$('kc').onclick=async()=>{try{await navigator.clipboard.writeText(keyList().join('\n'));toast('📋 Anahtarlar kopyalandı')}catch(e){toast('Kopyalanamadı')}};
+$('kp').onclick=async()=>{try{const t=await navigator.clipboard.readText();$('keys').value=[...new Set(keyList().concat(t.split(/[\n,;\s]+/).filter(x=>x.length>15)))].join('\n');saveKeys();toast('📥 Yapıştırıldı')}catch(e){toast('Pano okunamadı, elle yapıştır')}};
+/* ekran modu */
+(function(){const K='zirve_ekran',seg=$('seg');
+ const oto=()=>{const w=Math.max(screen.width,innerWidth),touch=matchMedia('(pointer:coarse)').matches;if(w>=3000)return 1.6;if(w>=1700&&touch&&devicePixelRatio<=1.25)return 1.35;return 1};
+ function uygula(){let m;try{m=localStorage.getItem(K)}catch(e){}const z=(!m||m==='0')?oto():parseFloat(m);document.documentElement.style.zoom=z;[...seg.children].forEach(b=>b.classList.toggle('on',b.dataset.m===(m||'0')))}
+ seg.onclick=e=>{const b=e.target.closest('button');if(!b)return;try{b.dataset.m==='0'?localStorage.removeItem(K):localStorage.setItem(K,b.dataset.m)}catch(x){}uygula()};
+ addEventListener('resize',()=>{try{if(!localStorage.getItem(K))uygula()}catch(e){}});uygula();
+ ZIRVE.ekranReset=()=>document.documentElement.style.zoom=1;ZIRVE.ekranGeri=uygula})();
+/* QR */
+ZIRVE.paylasAc=async function(){const u=location.href;$('qm').style.display='flex';$('qu').textContent=u;const qi=$('qi');
+ if(!/^https?:/.test(u)){qi.innerHTML='<small class="wn">Önce dosyayı GitHub Pages\'e yükle, sonra QR üretilir.</small>';return}
+ try{if(!window.qrcode)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';s.onload=ok;s.onerror=no;document.head.append(s)});
+  const q=qrcode(0,'M');q.addData(u);q.make();qi.innerHTML=q.createImgTag(6,16)}catch(e){qi.innerHTML='<small class="wn">QR kütüphanesi yüklenemedi (internet?).</small>'}};
+$('qb').onclick=ZIRVE.paylasAc;$('qx').onclick=()=>$('qm').style.display='none';$('ql').onclick=()=>navigator.clipboard.writeText(location.href).then(()=>toast('Link kopyalandı'));
+$('qd').onclick=()=>{const i=$('qi').querySelector('img');if(!i)return;const a=document.createElement('a');a.href=i.src;a.download='qr.png';a.click()};
+/* karşılama */
+const KARSILAMA={baslik:'🎙️ Sinematik Seslendirici',ozet:'Sessiz videonu gerçekçi yapay zekâ sesi ve sinematik müzikle sesli videoya çevirir.',adimlar:['Önce <b>ElevenLabs</b> ya da <b>Gemini</b> API anahtarını (birden fazla olabilir) 2. kutuya yapıştır.','Videonu seç, sahne metinlerini kontrol et, <b>Ses dene</b> ile sesi dinle.','<b>① Sesleri üret</b> → <b>② Önizle</b> → <b>③ Sesli videoyu kaydet</b> (kayıt sırasında sekmeyi değiştirme).','Kayıt tutmazsa <b>④</b> ile WAV + plan indirip bana gönder.']};
+ZIRVE.karsilamaAc=function(){$('ht').textContent=KARSILAMA.baslik;$('hs').textContent=KARSILAMA.ozet;$('hl').innerHTML=KARSILAMA.adimlar.map(x=>'<li>'+x+'</li>').join('');$('hm').style.display='flex'};
+$('hb').onclick=ZIRVE.karsilamaAc;$('hx').onclick=()=>{$('hm').style.display='none';try{localStorage.setItem('zirve_karsilama_goruldu','1')}catch(e){}};
+try{if(!localStorage.getItem('zirve_karsilama_goruldu')&&!MOCK)setTimeout(ZIRVE.karsilamaAc,500)}catch(e){}
+/* siteye dön */
+$('sb').onclick=()=>{location.href=SITE_URL};
+/* chrome: uyanık tut + sekme uyarısı */
+let wl=null;async function uyanik(){try{if(navigator.wakeLock)wl=await navigator.wakeLock.request('screen')}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&window.__recording)log('⚠️ Sekme arka plana gitti: Chrome kaydı donduruyor olabilir. Bu sekmeye dön.','wn');else if(!document.hidden&&window.__recording)uyanik()});
+const _rt=runRT;runRT=async function(r){window.__recording=!!r;if(r)await uyanik();try{return await _rt(r)}finally{window.__recording=false;try{wl&&wl.release()}catch(e){}}};
+/* PWA manifest (SW'siz) */
+try{const m={name:'Sinematik Seslendirici',short_name:'Seslendirici',display:'standalone',background_color:'#0b0d12',theme_color:'#0b0d12',start_url:location.href.split('#')[0],icons:[{src:'data:image/png;base64,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',sizes:'192x192',type:'image/png'},{src:'data:image/png;base64,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',sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
+ const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));document.head.append(l)}catch(e){}
+/* sürüm rozeti + öz-kontrol */
+const MODULLER=['tts','plan','schedule','runRT','showResult','wav16','toast','scenes','keyList'];
+function kontrol(){return MODULLER.map(n=>{let ok=false;try{ok=typeof eval(n)==='function'}catch(e){}return[n,ok]})}
+(function(){const k=kontrol(),iyi=k.filter(x=>x[1]).length,vb=$('vb'),b=$('bn');let g='';try{g=localStorage.getItem('zirve_surum')||''}catch(e){}
+ vb.textContent='v'+APP.surum+(iyi==k.length?' ✓':' ⚠');
+ b.style.display='block';b.innerHTML=g&&g!==APP.surum||!g?('🆕 v'+APP.onceki.surum+' → v'+APP.surum+' · Kod: '+APP.onceki.satir+' → '+APP.satir+' satır · 🧪 '+iyi+'/'+k.length+' modül sağlam'):('✅ v'+APP.surum+' · en güncel sürüm');
+ setTimeout(()=>b.style.display='none',9000);try{localStorage.setItem('zirve_surum',APP.surum)}catch(e){}
+ vb.onclick=()=>{$('vd').innerHTML='<p>Önceki: '+APP.onceki.satir+' satır / '+APP.onceki.kb+' KB<br>Şimdiki: '+APP.satir+' satır / '+APP.kb+' KB</p><ul>'+APP.yenilikler.map(x=>'<li>'+x+'</li>').join('')+'</ul><p>Modüller:<br>'+kontrol().map(x=>(x[1]?'✅ ':'❌ ')+x[0]).join('<br>')+'</p>';$('vm2').style.display='flex'};$('vx').onclick=()=>$('vm2').style.display='none'})();
+function trErr(st,m){const l=String(m).toLowerCase();if(st==401)return 'Anahtar geçersiz (401)';if(st==402)return 'Bu ses/plan için ücretli plan gerekiyor (402)';if(st==403)return 'İzin yok (403): anahtar bu işlem için yetkili değil';if(st==404)return 'Ses veya model bulunamadı (404): başka ses/model seç';if(st==429||/quota|limit|credit/.test(l))return 'Kota doldu ('+st+'). Başka anahtar ekle';if(st==400)return 'Geçersiz istek (400): '+m;return m}
+
 </script>
 </body>
 </html>
