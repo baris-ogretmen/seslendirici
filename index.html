@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Seslendirici 2 · Sinematik yapay zekâ sesi</title>
@@ -14,7 +15,7 @@ h1{font-family:Georgia,serif;font-size:32px;margin:4px 0 2px}h1 span{color:#d4ab
 .card h2{font-size:13px;letter-spacing:.1em;color:#d4ab62;margin:0 0 8px;text-transform:uppercase}
 label{display:block;font-size:12.5px;color:#a9a597;margin:10px 0 4px}
 input[type=text],input[type=password],select,textarea{width:100%;background:#0b0d12;color:#ece6d6;border:1px solid #2c3342;border-radius:8px;padding:10px;font:inherit;font-size:16px}
-textarea{min-height:200px;font-size:14px}textarea.k{min-height:64px}
+textarea{min-height:200px;font-size:14px}#keys:not(:focus){-webkit-text-security:disc}textarea.k{min-height:64px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:640px){.row{grid-template-columns:1fr}}
 button{background:#d4ab62;color:#14110a;border:0;font-weight:800;font-size:16px;padding:12px 18px;border-radius:999px;cursor:pointer;margin:6px 8px 0 0}
@@ -40,49 +41,32 @@ details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;paddin
 </style>
 </head>
 <body><div class="w"><div id="bn"></div>
+<div id="upd" style="display:none;cursor:pointer;background:#5a1d22;border:1px solid #ff6b6b;color:#fff;border-radius:10px;padding:10px 14px;margin:8px 0;font-weight:700"></div>
 <h1>Sinematik <span>Seslendirici</span></h1>
-<div class="sub">Video seç → gerçekçi yapay zekâ sesi + sinematik müzik/efekt → sesli video. Chrome, Edge ve telefonda çalışır.</div>
+<div class="sub">Videonu seç, anahtarını yapıştır, tek düğmeye bas. Sesli, müzikli, altyazılı video hazır.</div>
 
 <div class="card"><h2>1 · Video</h2>
 <input type="file" id="vf" accept="video/*">
 <video id="v" playsinline webkit-playsinline muted controls></video>
-<canvas id="cv" width="1080" height="1920"></canvas></div>
+<canvas id="cv" width="1080" height="1920"></canvas>
+<canvas id="cvp" width="270" height="480" style="display:block;margin:10px auto 0;border-radius:10px;border:1px solid #2c3342;max-width:55%"></canvas>
+<small style="display:block;text-align:center">Videonun telefonda nasıl görüneceği</small></div>
 
-<div class="card"><h2>2 · Ses motoru</h2>
-<div class="row"><div><label>Motor</label><select id="eng"><option value="eleven">ElevenLabs (gerçekçi)</option><option value="gemini">Gemini TTS</option></select></div>
-<div><label>Ses</label><select id="voice"></select></div></div>
-<button id="vfetch" class="g" type="button">🔄 Hesabımdaki sesleri getir</button>
-<label>Özel ses kimliği (isteğe bağlı: ElevenLabs "Voice ID")</label><input type="text" id="cvoice" placeholder="boş bırak = yukarıdaki ses">
-<label>API anahtarı / anahtarları (her satıra bir tane; biri biterse sıradakine geçer)</label>
-<textarea id="keys" class="k" spellcheck="false" placeholder="sk_...&#10;sk_..."></textarea>
-<div class="row"><div><label>Model</label><select id="model"></select></div>
-<div><label>Anlatım tarzı</label><select id="preset"><option value="aksiyon">Aksiyonlu · gergin · etkileyici</option><option value="dram">Dramatik belgesel</option><option value="sakin">Sakin belgesel</option></select></div></div>
-<label><input type="checkbox" id="rem" checked> Anahtarları bu tarayıcıda hatırla</label>
-<small>ElevenLabs'ta kitaplık sesleri API ile kullanmak için ücretli planda olman gerekir.</small></div>
+<div class="card"><h2>2 · Anahtar</h2>
+<textarea id="keys" class="k" spellcheck="false" autocomplete="off" placeholder="ElevenLabs anahtarını buraya yapıştır (sk_…)"></textarea>
+<small>Birden fazla anahtar alt alta yazılabilir; biri biterse sıradakine geçer. Anahtar gizli görünür, yalnız bu telefonda saklanır.</small></div>
 
-<div class="card"><h2>3 · Fon müziği &amp; efekt</h2>
-<label>Müzik havası (her sahne için de seçilebilir: satır başına <b>[korku]</b> gibi etiket yaz)</label>
-<select id="mood"><option value="oto">🤖 Otomatik · metne göre ben seçerim</option><option value="gerilim">😬 Gerilim</option><option value="korku">👻 Korku</option><option value="duygusal">💧 Duygusal</option><option value="umut">🌅 Umut / İlham</option><option value="aksiyon">⚡ Aksiyon</option><option value="haber">📰 Haber bülteni</option><option value="sakin">🌙 Sakin belgesel</option></select>
-<button id="mtest" class="g">🎧 Müziği dinle (8 sn)</button>
-<label>Kendi müziğim (isteğe bağlı · telifsiz bir mp3 seç; konuşurken otomatik kısılır)</label>
-<input type="file" id="mf" accept="audio/*"> <button id="mfx" class="g" style="display:none">✕ Kendi müziğimi kaldır</button>
-<label><input type="checkbox" id="cine" checked> Fon müziği + sahne geçiş efektleri açık</label>
-<div class="rg"><span>Müzik</span><input type="range" id="vm" min="0" max="100" value="45"><b id="vmv">45</b></div>
-<div class="rg"><span>Efekt</span><input type="range" id="vs" min="0" max="100" value="45"><b id="vsv">45</b></div>
-<div class="rg"><span>Anlatım</span><input type="range" id="vn" min="50" max="200" value="130"><b id="vnv">130</b></div>
-<div class="rg"><span>Konuşma hızı</span><input type="range" id="hiz" min="85" max="120" value="105"><b id="hizv">105</b></div>
-<small>Hazır müzikler bu sayfada sentezlenir, hiçbir şarkıdan alınmaz, telif sorunu yoktur. Kendi müziğini seçersen telifsiz olduğundan emin ol (YouTube Ses Kitaplığı, Pixabay Music).</small></div>
+<div class="card"><h2>3 · Ses</h2>
+<select id="voice"></select>
+<button id="bt" class="g">🔊 Bu sesi dinle</button>
+<small id="vnote">⭐ işaretliler benim önerdiklerim, en üstte.</small></div>
 
-<div class="card"><h2>4 · Video biçimi</h2>
-<div class="row"><div><label>Biçim</label><select id="fmt"><option value="v">📱 Dikey 9:16 · WhatsApp durumu</option><option value="h">🖥️ Yatay 16:9 · YouTube</option></select></div>
-<div><label>&nbsp;</label><label><input type="checkbox" id="sub" checked> Altyazı göm (sessiz izleyenler için)</label></div></div>
-<div class="row"><div><label>Üst yazı</label><input type="text" id="kust" value="KÖŞE YAZISI · 1"></div><div><label>Başlık</label><input type="text" id="kbas" value="Cebimizdeki Hesap"></div></div>
-<label>İmza</label><input type="text" id="imza" value="baris-ogretmen.github.io/site-1">
-<canvas id="cvp" width="270" height="480" style="display:block;margin:10px auto 0;border-radius:10px;border:1px solid #2c3342;max-width:60%"></canvas></div>
+<div class="card"><h2>4 · Fon müziği</h2>
+<select id="mood"><option value="oto">🤖 Otomatik · her sahneye uygun olanı ben seçerim</option><option value="duygusal">💧 Duygusal piyano</option><option value="umut">🌅 Umut / İlham</option><option value="haber">📰 Haber bülteni</option><option value="gerilim">😬 Gerilim</option><option value="korku">👻 Korku</option><option value="aksiyon">⚡ Aksiyon</option><option value="sakin">🌙 Sakin belgesel</option><option value="yok">🔇 Müzik yok</option></select>
+<button id="mtest" class="g">🎧 Müziği dinle</button></div>
 
-<div class="card"><h2>5 · Sahne metinleri</h2>
-<label>Hazır metin</label><select id="hazir"><option value="kose1">Köşe Yazısı 1 · Cebimizdeki Hesap (1 dk)</option><option value="tam">Hesap Vakti · tam belgesel (3:46)</option><option value="bos">Boş · kendi metnim</option></select>
-<small>Her satır: <b>başlangıç | okunacak metin</b> (örn. <b>1:25 | Metin…</b>). Sahne, sonraki satırın başlangıcında biter.</small>
+<div class="card"><h2>5 · Metin</h2>
+<select id="hazir"><option value="kose1">Köşe Yazısı 1 · Cebimizdeki Hesap (1 dk)</option><option value="tam">Hesap Vakti · tam belgesel (3:46)</option><option value="bos">Boş · kendi metnim</option></select>
 <textarea id="lines" spellcheck="false">0:00 | Bugün slogan değil, cebimizdeki hesabı konuşalım.
 0:07 | Önce hakkını verelim: yollar, köprüler, hastaneler yapıldı. Bunu inkâr etmiyorum.
 0:13 | Ama 2002'de bir dolar bir buçuk liraydı. Bugün elli liranın üzerinde.
@@ -90,18 +74,32 @@ details.tl{background:#12151c;border:1px solid #232834;border-radius:12px;paddin
 0:27 | Net asgari ücret 28 bin 75 lira. Türk-İş'in ekim hesabıyla dört kişilik bir ailenin yalnız mutfak masrafı 38 bin 24 lira.
 0:37 | Yani evin tek çalışanı tüm maaşını verse, sofrayı bile dolduramıyor.
 0:44 | İktidar enflasyonun zirveden düştüğünü söylüyor; doğru. Ama düşmek, ucuzlamak demek değil.
-0:51 | İktidarı destekleyen de eleştiren de aynı markete giriyor. Hesap sormak kimseye düşmanlık değil, hepimizin hakkı. Sağlıcakla kalın.</textarea></div>
+0:51 | İktidarı destekleyen de eleştiren de aynı markete giriyor. Hesap sormak kimseye düşmanlık değil, hepimizin hakkı. Sağlıcakla kalın.</textarea>
+<small>Her satır: <b>saniye | okunacak cümle</b>. İstersen bir sahneye özel müzik için satıra <b>[korku]</b> gibi etiket ekle.</small></div>
 
-<div class="card"><h2>6 · Üret ve kaydet</h2>
-<button id="bt" class="g">🔊 Ses dene (1. sahne)</button><br>
-<button id="b1">① Sesleri üret</button><button id="b2" class="g" disabled>② Önizle</button><button id="b3" disabled>③ Sesli videoyu kaydet</button><br>
-<button id="b4" class="g" disabled>④ Yedek: ses paketini indir (WAV + plan)</button>
-<div class="bar"><i id="pr"></i></div><div id="log"></div>
-<small>Kayıt gerçek zamanlıdır (~4 dk). Kayıt boyunca ekranı açık tut, sekmeyi değiştirme. Kayıt çalışmazsa ④ ile ses paketini indirip bana gönder, ben birleştiririm.</small></div>
+<div class="card" style="text-align:center"><button id="go" style="font-size:20px;padding:16px 26px;width:100%">🎬 Sesli videoyu oluştur</button>
+<div class="bar"><i id="pr"></i></div><div id="log" style="text-align:left"></div>
+<small>Yaklaşık video süresi kadar sürer. Bitene kadar ekranı açık tut, başka uygulamaya geçme.</small></div>
 
 <div class="card" id="res"><h2>Sonuç</h2><video id="rv" playsinline controls></video><div id="rb"></div></div>
 
-<details class="tl" id="tools"><summary>⚙️ Araçlar &amp; Ayarlar</summary>
+<details class="tl" id="ileri"><summary>🛠️ Gelişmiş ayarlar</summary>
+<div class="row"><div><label>Motor</label><select id="eng"><option value="eleven">ElevenLabs</option><option value="gemini">Gemini</option></select></div><div><label>Model</label><select id="model"></select></div></div>
+<div class="row"><div><label>Anlatım tarzı</label><select id="preset"><option value="dram">Dramatik belgesel</option><option value="aksiyon">Aksiyonlu</option><option value="sakin">Sakin</option></select></div><div><label>Biçim</label><select id="fmt"><option value="v">📱 Dikey · WhatsApp</option><option value="h">🖥️ Yatay · YouTube</option></select></div></div>
+<button id="vfetch" class="g" type="button">🔄 Ses listesini yenile</button>
+<label>Özel ses kimliği (Voice ID)</label><input type="text" id="cvoice" placeholder="boş bırak = seçili ses">
+<div class="row"><div><label>Üst yazı</label><input type="text" id="kust" value="KÖŞE YAZISI · 1"></div><div><label>Başlık</label><input type="text" id="kbas" value="Cebimizdeki Hesap"></div></div>
+<label>İmza</label><input type="text" id="imza" value="baris-ogretmen.github.io/site-1">
+<label><input type="checkbox" id="sub" checked> Altyazı göm</label> <label><input type="checkbox" id="cine" checked> Müzik ve geçiş efektleri</label> <label><input type="checkbox" id="rem" checked> Anahtarları hatırla</label>
+<div class="rg"><span>Müzik</span><input type="range" id="vm" min="0" max="100" value="35"><b id="vmv">35</b></div>
+<div class="rg"><span>Efekt</span><input type="range" id="vs" min="0" max="100" value="30"><b id="vsv">30</b></div>
+<div class="rg"><span>Anlatım</span><input type="range" id="vn" min="50" max="200" value="130"><b id="vnv">130</b></div>
+<div class="rg"><span>Konuşma hızı</span><input type="range" id="hiz" min="85" max="120" value="105"><b id="hizv">105</b></div>
+<label>Kendi müziğim (telifsiz mp3 · konuşurken kısılır)</label><input type="file" id="mf" accept="audio/*"> <button id="mfx" class="g" style="display:none">✕ Kaldır</button>
+<label>Adım adım</label><button id="b1" class="g">① Sesleri üret</button><button id="b2" class="g" disabled>② Önizle</button><button id="b3" class="g" disabled>③ Kaydet</button><button id="b4" class="g" disabled>④ Ses paketi (WAV)</button>
+</details>
+
+<details class="tl" id="tools"><summary>🧰 Araçlar (anahtar testi, QR, ekran)</summary>
 <label>🔑 Anahtar sağlığı</label><button id="kt" class="g">Anahtarları Test Et</button><button id="kc" class="g">📋 Tümünü Kopyala</button><button id="kp" class="g">📥 Panodan Yapıştır</button><div id="ktr"></div>
 <small>Ücretsiz anahtar: <a style="color:#d4ab62" target="_blank" href="https://aistudio.google.com/apikey">Gemini</a> · <a style="color:#d4ab62" target="_blank" href="https://elevenlabs.io/app/settings/api-keys">ElevenLabs</a>. Anahtarlar yalnız bu tarayıcıda saklanır, sunucuya gitmez.</small>
 <label>📺 Ekran modu</label><div class="seg" id="seg"><button data-m="0">Oto</button><button data-m="1">Normal</button><button data-m="1.35">Akıllı Tahta</button><button data-m="1.6">Büyük Tahta</button></div>
@@ -141,16 +139,24 @@ const HAZIR={kose1:{lines:`0:00 | Bugün slogan değil, cebimizdeki hesabı konu
 3:37.3 | Kaynaklar ekranda. İzlediğiniz için teşekkürler.`,ust:'BELGESEL',bas:'Hesap Vakti',fmt:'h'},bos:{lines:'0:00 | ',ust:'KÖŞE YAZISI',bas:'',fmt:'v'}};
 /* ---------- motor tanımları ---------- */
 const ENG={
- eleven:{voices:[["George · sıcak, olgun anlatıcı (önerilen)","JBFqnCBsd6RMkjVDRZzb"],["Celil · derin belgesel anlatıcı","Zpbxhg6LG47cY8y5BJrf"],["Ömür · sıcak, derin baritonu","X6EHbOBe9sjpG7kyfrOA"],["Ahmet · güçlü ve derin","ZsYcqahfiS2dy4J6XYC5"],["Muhammer · profesyonel","GLHtjkeLJ9Rxcv9JhLmh"],["Yusuf · hikâye anlatıcı","tOqnHSMt5y3uRBgH7e8J"],["Atakan · dinamik","gsJ9nrlXYbPztJxC4fwc"]],models:["eleven_multilingual_v2","eleven_v3","eleven_turbo_v2_5"]},
- gemini:{voices:["Charon","Kore","Fenrir","Orus","Puck","Aoede","Algenib","Alnilam"].map(x=>[x,x]),models:["gemini-2.5-flash-preview-tts","gemini-2.5-pro-preview-tts"]}};
+ eleven:{voices:[["⭐ George · sıcak, olgun belgesel sesi","JBFqnCBsd6RMkjVDRZzb"],["⭐ Brian · derin, güven veren","nPczCjzI2devNBz1zQrb"],["⭐ Daniel · haber spikeri gibi net","onwK4e9ZLuTAKqWW03F9"],["⭐ Charlie · enerjik, kendinden emin","IKne3meq5aSn9XLyUdCD"],["⭐ Adam · derin bariton","pNInz6obpgDQGcFmaJgB"]],models:["eleven_multilingual_v2","eleven_v3","eleven_turbo_v2_5"]},
+ gemini:{voices:[["⭐ Charon · sevdiğin ses","Charon"]].concat(["Kore","Fenrir","Orus","Puck","Aoede","Algenib","Alnilam"].map(x=>[x,x])),models:["gemini-2.5-flash-preview-tts","gemini-2.5-pro-preview-tts"]}};
 const PRE={aksiyon:{st:.25,sty:.65,sp:1.08,g:"Gergin, enerjik ve etkileyici bir belgesel anlatıcısı gibi, vurgulu ve net oku:"},dram:{st:.4,sty:.4,sp:1.0,g:"Derin, ağırbaşlı, dramatik bir belgesel anlatıcısı gibi oku:"},sakin:{st:.65,sty:.1,sp:1.0,g:"Sakin ve net bir belgesel anlatıcısı gibi oku:"}};
 function fillEng(){const e=ENG[$('eng').value];$('voice').innerHTML=e.voices.map(v=>'<option value="'+v[1]+'">'+v[0]+'</option>').join('');$('model').innerHTML=e.models.map(m=>'<option>'+m+'</option>').join('')}
 $('eng').onchange=fillEng;fillEng();
-$('vfetch').onclick=async()=>{const k=keyList('eleven')[0];if(!k){log('Önce ElevenLabs anahtarını (sk_…) yapıştır.','er');return}
- try{const r=await fetch('https://api.elevenlabs.io/v1/voices?page_size=100',{headers:{'xi-api-key':k}});if(!r.ok)throw new Error('HTTP '+r.status);const vs=(await r.json()).voices||[];
-  if(!vs.length){log('Hesabında ses bulunamadı.','wn');return}$('eng').value='eleven';fillEng();
-  $('voice').innerHTML=vs.map(v=>'<option value="'+v.voice_id+'">'+v.name+(v.labels&&v.labels.accent?' · '+v.labels.accent:'')+(v.category?' ('+v.category+')':'')+'</option>').join('');
-  const g=vs.find(v=>/george/i.test(v.name));if(g)$('voice').value=g.voice_id;log(vs.length+' ses getirildi. Listeden seçip "Ses dene" ile dinle.','ok')}catch(e){log('Sesler alınamadı: '+e.message,'er')}};
+const RECO=[['George','sıcak, olgun belgesel sesi'],['Brian','derin, güven veren'],['Daniel','haber spikeri gibi net'],['Charlie','enerjik, kendinden emin'],['Adam','derin bariton'],['Bill','olgun, sakin']];
+async function sesleriGetir(sessiz){const k=keyList('eleven')[0];if(!k){if(!sessiz)log('Önce ElevenLabs anahtarını (sk_…) yapıştır.','er');return}
+ try{const r=await fetch('https://api.elevenlabs.io/v1/voices?page_size=100',{headers:{'xi-api-key':k}});if(!r.ok)throw new Error('HTTP '+r.status);const vs=(await r.json()).voices||[];if(!vs.length)return;
+  const onc=[],dig=[];vs.forEach(v=>{const ri=RECO.findIndex(x=>v.name.toLowerCase().startsWith(x[0].toLowerCase()));if(ri>=0)onc[ri]=v;else dig.push(v)});
+  const o=(v,lab)=>'<option value="'+v.voice_id+'">'+lab+'</option>';const eski=$('voice').value;
+  $('voice').innerHTML='<optgroup label="Önerilenler">'+onc.map((v,i)=>v?o(v,'⭐ '+RECO[i][0]+' · '+RECO[i][1]):'').join('')+'</optgroup><optgroup label="Hesabındaki diğer sesler">'+dig.map(v=>o(v,v.name)).join('')+'</optgroup>';
+  if([...$('voice').options].some(x=>x.value==eski))$('voice').value=eski;else $('voice').selectedIndex=0;try{localStorage.setItem('ses_secim',$('voice').value)}catch(e){}
+  if(!sessiz)log(vs.length+' ses getirildi, önerilenler en üstte.','ok')}catch(e){if(!sessiz)log('Sesler alınamadı: '+e.message,'er')}}
+$('vfetch').onclick=()=>sesleriGetir(false);
+$('keys').addEventListener('change',()=>{saveKeys();if(keyList('eleven').length&&$('eng').value=='eleven')sesleriGetir(true)});
+$('voice').addEventListener('change',()=>{try{localStorage.setItem('ses_secim',$('voice').value)}catch(e){}});
+setTimeout(()=>{const ak=allKeys();if(ak.length&&!keyList('eleven').length&&kType(ak[0])=='gemini'){$('eng').value='gemini';fillEng()}if(keyList('eleven').length)sesleriGetir(true);try{const s=localStorage.getItem('ses_secim');if(s&&[...$('voice').options].some(x=>x.value==s))$('voice').value=s}catch(e){}},100);
+$('go').onclick=async()=>{$('go').disabled=true;try{await $('b1').onclick();if(!$('b3').disabled)await $('b3').onclick()}finally{$('go').disabled=false}};
 try{$('keys').value=[...new Set(['keys_all','keys_eleven','keys_gemini'].flatMap(k=>(localStorage.getItem(k)||'').split(/[\n,;\s]+/)).filter(Boolean))].join('\n')}catch(e){}
 ['vm','vs','vn','hiz'].forEach(i=>$(i).oninput=()=>$(i+'v').textContent=$(i).value);
 const V=$('v');
@@ -230,15 +236,15 @@ $('b1').onclick=async()=>{
   $('b1').disabled=false};
 /* ---------- zaman planı ---------- */
 const LEAD=.45;
-function plan(){const S=scenes();let W=0;return S.map((x,i)=>{const d=x.e-x.s,a=bufs[i]?bufs[i].duration:0,fade=Math.min(.5,d*.3);const hold=Math.max(d-fade,a+LEAD+.3);const w=hold+fade;const mv=$('mood').value;const p={i,s:x.s,e:x.e,d,a,fade,hold,w,W0:W,txt:x.txt,mood:x.mood||(mv=='oto'?autoMood(x.txt,theme[i]):mv)};W+=w;return p})}
+function plan(){const S=scenes();let W=0;return S.map((x,i)=>{const d=x.e-x.s,a=bufs[i]?bufs[i].duration:0,fade=Math.min(.5,d*.3);const hold=Math.max(d-fade,a+LEAD+.3);const w=hold+fade;const mv=$('mood').value=='yok'?'sakin':$('mood').value;const p={i,s:x.s,e:x.e,d,a,fade,hold,w,W0:W,txt:x.txt,mood:x.mood||(mv=='oto'?autoMood(x.txt,theme[i]):mv)};W+=w;return p})}
 /* ---------- sinematik katman ---------- */
 /* ===== FON MÜZİĞİ MOTORU (sentez, telifsiz) ===== */
 const MOODS={
- gerilim:{ad:'Gerilim',root:49,ch:[1,1.189,1.498],wave:'sawtooth',lp:750,bpm:96,kick:.7,hat:.5,tick:1,boom:1,riser:1},
- korku:{ad:'Korku',root:41.2,ch:[1,1.059,1.414],wave:'sawtooth',lp:480,bpm:60,heart:1,shimmer:1,boom:.8,riser:1},
+ gerilim:{ad:'Gerilim',root:49,ch:[1,1.189,1.498],wave:'triangle',lp:1100,bpm:96,kick:.5,hat:.4,tick:1,arp:1,boom:1,riser:1},
+ korku:{ad:'Korku',root:55,ch:[1,1.059,1.414],wave:'triangle',lp:480,bpm:60,heart:1,shimmer:1,boom:.8,riser:1},
  duygusal:{ad:'Duygusal',root:55,ch:[1,1.189,1.498,2],wave:'triangle',lp:1200,bpm:70,arp:1,boom:.2,riser:.35},
  umut:{ad:'Umut / İlham',root:65.4,ch:[1,1.26,1.498,2],wave:'triangle',lp:1500,bpm:84,kick:.35,hat:.25,arp:1,boom:.4,riser:.6},
- aksiyon:{ad:'Aksiyon',root:55,ch:[1,1.498,2],wave:'sawtooth',lp:1500,bpm:124,kick:1,hat:1,eighth:1,boom:1.2,riser:1},
+ aksiyon:{ad:'Aksiyon',root:55,ch:[1,1.498,2],wave:'triangle',lp:1500,bpm:124,kick:1,hat:1,eighth:1,boom:1.2,riser:1},
  haber:{ad:'Haber bülteni',root:58.3,ch:[1,1.498,2],wave:'sine',lp:900,bpm:100,kick:.3,hat:.3,tickArp:1,boom:.5,riser:.5},
  sakin:{ad:'Sakin belgesel',root:55,ch:[1,1.498,2.52],wave:'sine',lp:700,bpm:0,chime:1,boom:.2,riser:.3}};
 function autoMood(txt,th){const s=String(txt).toLocaleLowerCase('tr');
@@ -257,11 +263,11 @@ function kick(ctx,out,t,v,f0){const o=ctx.createOscillator(),g=ctx.createGain();
 function hat(ctx,out,NB,t,v){const n=ctx.createBufferSource();n.buffer=NB;const f=ctx.createBiquadFilter();f.type='highpass';f.frequency.value=6500;const g=ctx.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);n.connect(f);f.connect(g);g.connect(out);n.start(t,Math.random(),.08)}
 function musicScene(ctx,out,NB,m,p,t,end){
  const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=m.lp;lp.Q.value=.7;const pg=ctx.createGain();lp.connect(pg);pg.connect(out);
- const top=.5;pg.gain.setValueAtTime(.0001,t);pg.gain.linearRampToValueAtTime(top,t+.6);
+ const top=.38;pg.gain.setValueAtTime(.0001,t);pg.gain.linearRampToValueAtTime(top,t+1.4);
  if(p.a>0){pg.gain.setTargetAtTime(top*.55,t+LEAD,.3);pg.gain.setTargetAtTime(top,t+LEAD+p.a+.1,.5)}
  pg.gain.setTargetAtTime(.0001,end-.2,.15);const stop=end+.9;
- m.ch.forEach((c,ci)=>{(m.wave=='sawtooth'?[0,8]:[0]).forEach(dt=>{const os=ctx.createOscillator();os.type=m.wave;os.frequency.value=m.root*2*c;os.detune.value=dt;const g=ctx.createGain();g.gain.value=(m.wave=='sawtooth'?.08:.15)/(1+ci*.3);os.connect(g);g.connect(lp);os.start(t);os.stop(stop)})});
- const sub=ctx.createOscillator();sub.type='sine';sub.frequency.value=m.root;const sg=ctx.createGain();sg.gain.value=.3;sub.connect(sg);sg.connect(lp);sub.start(t);sub.stop(stop);
+ m.ch.forEach((c,ci)=>{(m.wave=='sawtooth'?[0,8]:[0]).forEach(dt=>{const os=ctx.createOscillator();os.type=m.wave;os.frequency.value=m.root*2*c;os.detune.value=dt+(ci%2?4:-4);const g=ctx.createGain();g.gain.value=.12/(1+ci*.3);os.connect(g);g.connect(lp);os.start(t);os.stop(stop)})});
+ const sub=ctx.createOscillator();sub.type='sine';sub.frequency.value=m.root*2;const sg=ctx.createGain();sg.gain.value=.06;sub.connect(sg);sg.connect(lp);sub.start(t);sub.stop(stop);
  if(m.shimmer)[1,1.059].forEach(r=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=m.root*24*r;const g=ctx.createGain();g.gain.value=.022;const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.3+Math.random()*.4;lg.gain.value=.018;lfo.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(out);o.start(t);o.stop(stop);lfo.start(t);lfo.stop(stop)});
  if(!m.bpm){if(m.chime)for(let tt=t+1.2;tt<end-1;tt+=3.2)pluck(ctx,out,tt,m.root*16*m.ch[(Math.random()*m.ch.length)|0],.1,2.5);return}
  const beat=60/m.bpm,notes=[...m.ch.map(c=>m.root*8*c),m.root*16];let b=0;
@@ -280,7 +286,7 @@ let musicBuf=null;
 function schedule(ctx,master,P,t0,o){
  const ng=ctx.createGain();ng.gain.value=o.vn;ng.connect(master);
  P.forEach(p=>{if(!bufs[p.i])return;const s=ctx.createBufferSource();s.buffer=bufs[p.i];s.connect(ng);s.start(t0+p.W0+LEAD)});
- if(!o.cine)return;
+ if(!o.cine)return;if($('mood').value=='yok'&&!musicBuf){const sfx=ctx.createGain();sfx.gain.value=o.vs*.6;sfx.connect(master);return}
  const total=P[P.length-1].W0+P[P.length-1].w,NB=noiseBuf(ctx);
  const mus=ctx.createGain();mus.gain.value=o.vm;mus.connect(master);const sfx=ctx.createGain();sfx.gain.value=o.vs;sfx.connect(master);
  if(musicBuf){const s=ctx.createBufferSource();s.buffer=musicBuf;s.loop=true;const g=ctx.createGain();g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(.9,t0+1);
@@ -314,7 +320,7 @@ V.addEventListener('loadeddata',()=>{try{V.currentTime=Math.min(22,V.duration/2)
 $('hazir').onchange=()=>{const h=HAZIR[$('hazir').value];$('lines').value=h.lines;$('kust').value=h.ust;$('kbas').value=h.bas;$('fmt').value=h.fmt;$('sub').checked=h.fmt=='v';bufs=[];cacheKey=[];onizle();log('Hazır metin yüklendi. Uygun videoyu seçmeyi unutma.','wn')};
 $('mf').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const c=AC();musicBuf=await decode(c,await f.arrayBuffer());try{c.close()}catch(x){}$('mfx').style.display='';log('Kendi müziğin yüklendi: '+f.name+' ('+musicBuf.duration.toFixed(0)+' sn, döngüde çalar)','ok')}catch(x){log('Müzik dosyası açılamadı','er')}};
 $('mfx').onclick=()=>{musicBuf=null;$('mf').value='';$('mfx').style.display='none';log('Kendi müziğin kaldırıldı, hazır müziklere dönüldü.','wn')};
-$('mtest').onclick=async()=>{const ctx=AC();await ctx.resume();const mv=$('mood').value=='oto'?'gerilim':$('mood').value;const m=master(ctx,ctx.destination,false);schedule(ctx,m,[{i:-1,a:0,w:8,W0:0,mood:mv,txt:''}],ctx.currentTime+.1,Object.assign(opts(),{cine:true}));log('🎧 '+(musicBuf?'Kendi müziğin':MOODS[mv].ad)+' çalıyor (8 sn)…');setTimeout(()=>{try{ctx.close()}catch(e){}},8600)};
+$('mtest').onclick=async()=>{const ctx=AC();await ctx.resume();const mv=['oto','yok'].includes($('mood').value)?'duygusal':$('mood').value;const m=master(ctx,ctx.destination,false);schedule(ctx,m,[{i:-1,a:0,w:8,W0:0,mood:mv,txt:''}],ctx.currentTime+.1,Object.assign(opts(),{cine:true}));log('🎧 '+(musicBuf?'Kendi müziğin':MOODS[mv].ad)+' çalıyor (8 sn)…');setTimeout(()=>{try{ctx.close()}catch(e){}},8600)};
 setTimeout(onizle,50);
 
 function opts(){return{cine:$('cine').checked||!!musicBuf,vm:$('vm').value/100*1.4,vs:$('vs').value/100*1.0,vn:$('vn').value/100*1.0}}
@@ -346,7 +352,7 @@ async function runRT(record){
         else if(np!='H'&&Math.abs(V.currentTime-want)>.35){V.currentTime=want}}
       drawFrame(g,P,kNow,uNow,Math.max(0,T),total);
       requestAnimationFrame(tick)};tick()});
-  V.pause();V.style.display='';$('pr').style.width='100%';
+  V.pause();V.style.display='';$('cv').style.display='none';$('pr').style.width='100%';
   if(!record){ctx.close();return null}
   const done=new Promise(r=>rec.onstop=r);rec.stop();await done;ctx.close();
   return new Blob(chunks,{type:(rec.mimeType||mt||'video/webm').split(';')[0]})}
@@ -376,7 +382,7 @@ $('b4').onclick=async()=>{['b1','b2','b3','b4'].forEach(x=>$(x).disabled=true);l
 /* tema bilgisi (sahne sırasına göre) */
 theme=["blue", "amber", "blue", "amber", "rose", "blue", "rose", "rose", "blue", "amber", "rose", "blue", "amber", "blue", "amber"];
 /* ===== ZİRVE KATMANI ===== */
-const APP={surum:"2.5",tarih:"2026-11-19",satir:441,kb:66.3,onceki:{surum:"2.4",satir:435,kb:65.3},yenilikler:["George sesi önerilen varsayılan; \"Hesabımdaki sesleri getir\" düğmesi","İmza: site adresi; köşe yazısı açılışı sadeleştirildi","Fon müziği seçimi: Gerilim, Korku, Duygusal, Umut, Aksiyon, Haber, Sakin + Otomatik (metne göre)","Sahne başına müzik etiketi: [korku] gibi","Kendi telifsiz müziğini ekleme (konuşurken otomatik kısılır)","Dikey 9:16 WhatsApp durumu biçimi: başlık, imza, ilerleme çubuğu","Gömülü altyazı","Konuşma hızı ayarı","Hazır metin: Köşe Yazısı 1 · Cebimizdeki Hesap"]};
+const APP={surum:"3.0",tarih:"2026-11-19",satir:454,kb:68.1,onceki:{surum:"2.5",satir:441,kb:66.3},yenilikler:["Sade arayüz: 5 adım + tek düğme; ayrıntılar Gelişmiş'te","Motor sesi gibi uğultu kaldırıldı; müzikler yumuşak piyano/pad","Önerilen sesler en üstte (⭐), hesabındaki sesler otomatik gelir","Yeni sürüm çıkınca kırmızı 'Yenile' uyarısı","Anahtar gizli görünür","Müzik yok seçeneği"]};
 const GOMULU_ANAHTARLAR=[]; /* istersen buraya anahtar göm: ["sk_..."] — yeni projeye kopyalanınca otomatik yüklenir */
 const SITE_URL="https://baris-ogretmen.github.io/site-1/";
 const ZIRVE=window.ZIRVE={};
@@ -413,7 +419,7 @@ ZIRVE.paylasAc=async function(){const u=location.href;$('qm').style.display='fle
 $('qb').onclick=ZIRVE.paylasAc;$('qx').onclick=()=>$('qm').style.display='none';$('ql').onclick=()=>navigator.clipboard.writeText(location.href).then(()=>toast('Link kopyalandı'));
 $('qd').onclick=()=>{const i=$('qi').querySelector('img');if(!i)return;const a=document.createElement('a');a.href=i.src;a.download='qr.png';a.click()};
 /* karşılama */
-const KARSILAMA={baslik:'🎙️ Sinematik Seslendirici',ozet:'Sessiz videonu gerçekçi yapay zekâ sesi ve sinematik müzikle sesli videoya çevirir.',adimlar:['<b>Hazır metin</b>den köşe yazını seç, <b>Müzik havası</b>nı ve <b>Dikey (WhatsApp)</b> biçimini belirle.','Önce <b>ElevenLabs</b> ya da <b>Gemini</b> API anahtarını (birden fazla olabilir) 2. kutuya yapıştır.','Videonu seç, sahne metinlerini kontrol et, <b>Ses dene</b> ile sesi dinle.','<b>① Sesleri üret</b> → <b>② Önizle</b> → <b>③ Sesli videoyu kaydet</b> (kayıt sırasında sekmeyi değiştirme).','Kayıt tutmazsa <b>④</b> ile WAV + plan indirip bana gönder.']};
+const KARSILAMA={baslik:'🎙️ Sinematik Seslendirici',ozet:'Sessiz videonu sesli, müzikli, altyazılı videoya çevirir.',adimlar:['Videonu seç.','ElevenLabs anahtarını (sk_…) yapıştır.','⭐ önerilen bir ses ve müzik havası seç, istersen dinle.','<b>🎬 Sesli videoyu oluştur</b>a bas, bitince indir ya da paylaş.']};
 ZIRVE.karsilamaAc=function(){$('ht').textContent=KARSILAMA.baslik;$('hs').textContent=KARSILAMA.ozet;$('hl').innerHTML=KARSILAMA.adimlar.map(x=>'<li>'+x+'</li>').join('');$('hm').style.display='flex'};
 $('hb').onclick=ZIRVE.karsilamaAc;$('hx').onclick=()=>{$('hm').style.display='none';try{localStorage.setItem('zirve_karsilama_goruldu','1')}catch(e){}};
 try{if(!localStorage.getItem('zirve_karsilama_goruldu')&&!MOCK)setTimeout(ZIRVE.karsilamaAc,500)}catch(e){}
@@ -435,6 +441,13 @@ function kontrol(){return MODULLER.map(n=>{let ok=false;try{ok=typeof eval(n)===
  setTimeout(()=>b.style.display='none',9000);try{localStorage.setItem('zirve_surum',APP.surum)}catch(e){}
  vb.onclick=()=>{$('vd').innerHTML='<p>Önceki: '+APP.onceki.satir+' satır / '+APP.onceki.kb+' KB<br>Şimdiki: '+APP.satir+' satır / '+APP.kb+' KB</p><ul>'+APP.yenilikler.map(x=>'<li>'+x+'</li>').join('')+'</ul><p>Modüller:<br>'+kontrol().map(x=>(x[1]?'✅ ':'❌ ')+x[0]).join('<br>')+'</p>';$('vm2').style.display='flex'};$('vx').onclick=()=>$('vm2').style.display='none'})();
 function trErr(st,m){const l=String(m).toLowerCase();if(st==401)return 'Anahtar reddedildi (401): '+m+(/permission/i.test(l)?' — anahtarda "Text to Speech" izni açık olmalı':' — servis bu anahtarı tanımıyor: eksik/fazla karakter, yanlış servis ya da silinmiş/yenilenmiş anahtar olabilir');if(st==402)return 'Bu ses/plan için ücretli plan gerekiyor (402)';if(st==403)return 'İzin yok (403): anahtar bu işlem için yetkili değil';if(st==404)return 'Ses veya model bulunamadı (404): başka ses/model seç';if(st==429||/quota|limit|credit/.test(l))return 'Kota doldu ('+st+'). Başka anahtar ekle';if(st==400)return 'Geçersiz istek (400): '+m;return m}
+
+/* otomatik güncelleme uyarısı */
+function surumBuyuk(a,b){a=a.split('.').map(Number);b=b.split('.').map(Number);for(let i=0;i<3;i++){if((a[i]||0)!=(b[i]||0))return (a[i]||0)>(b[i]||0)}return false}
+let sonKontrol=0;async function surumKontrol(){if(!/^https?:/.test(location.href)||Date.now()-sonKontrol<15000)return;sonKontrol=Date.now();
+ try{const r=await fetch(location.href.split('#')[0].split('?')[0]+'?_v='+Date.now(),{cache:'no-store'});const m=/surum:"([\d.]+)"/.exec(await r.text());
+  if(m&&surumBuyuk(m[1],APP.surum)){const u=$('upd');u.style.display='block';u.textContent='🔴 Yeni sürüm v'+m[1]+' yayınlandı · dokun, yenilensin';u.onclick=()=>location.replace(location.pathname+'?r='+Date.now())}}catch(e){}}
+surumKontrol();addEventListener('focus',surumKontrol);document.addEventListener('visibilitychange',()=>{if(!document.hidden)surumKontrol()});setInterval(surumKontrol,120000);
 
 </script>
 </body>
